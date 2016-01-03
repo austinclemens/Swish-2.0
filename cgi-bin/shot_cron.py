@@ -12,7 +12,7 @@ import pickle
 import os
 import xml.etree.ElementTree as ET
 
-local=1
+local=0
 
 nba_start_year=2000
 wnba_start_year=2011
@@ -278,29 +278,29 @@ def nba_averages(year):
 	con.close()
 
 	year_average=chart(rows)
-	with open("/home/austinc/public_html/shotcharts/averages/%s_pickle" % (year),'wb') as f:
+	with open("/home/austinc/public_html/shotcharts/averages_nba/%s_pickle" % (year),'wb') as f:
 		pickle.dump(year_average,f)
 
 def wnba_averages(year):
 	con=MySQLdb.connect(user=mysqlparam['user'],passwd=mysqlparam['passwd'],host=mysqlparam['host'],port=mysqlparam['port'],db=mysqlparam['db'])
 	cur=con.cursor()
-	cur.execute("""SELECT three,made,x,y FROM shots2 WHERE year=%s""" % (year))
+	cur.execute("""SELECT three,made,x,y FROM shots2_wnba WHERE year=%s""" % (year))
 	rows=cur.fetchall()
 	con.close()
 
 	year_average=chart(rows)
-	with open("/home/austinc/public_html/shotcharts/averages/%s_pickle" % (year),'wb') as f:
+	with open("/home/austinc/public_html/shotcharts/averages_wnba/%s_pickle" % (year),'wb') as f:
 		pickle.dump(year_average,f)
 
 def dleague_averages(year):
 	con=MySQLdb.connect(user=mysqlparam['user'],passwd=mysqlparam['passwd'],host=mysqlparam['host'],port=mysqlparam['port'],db=mysqlparam['db'])
 	cur=con.cursor()
-	cur.execute("""SELECT three,made,x,y FROM shots2 WHERE year=%s""" % (year))
+	cur.execute("""SELECT three,made,x,y FROM shots2_dleague WHERE year=%s""" % (year))
 	rows=cur.fetchall()
 	con.close()
 
 	year_average=chart(rows)
-	with open("/home/austinc/public_html/shotcharts/averages/%s_pickle" % (year),'wb') as f:
+	with open("/home/austinc/public_html/shotcharts/averages_dleague/%s_pickle" % (year),'wb') as f:
 		pickle.dump(year_average,f)
 
 def chart(shots):
@@ -386,7 +386,6 @@ def get_game_info(game):
 
 
 
-
 # START EXECUTING FUNCTIONS
 # Get all shots for all leagues
 get_nba_shots()
@@ -394,17 +393,17 @@ get_wnba_shots()
 get_dleague_shots()
 
 # Get average files for each league as necessary
-files=os.listdir('/home/austinc/public_html/shotchart/averages/')
+files=os.listdir('/home/austinc/public_html/swish2/nba_averages/')
 for year in range(nba_start_year,current_year+1,1):
 	if year+'_pickle' not in files:
 		nba_averages(year)
 
-files=os.listdir('/home/austinc/public_html/shotchart/averages/wnba_averages/')
+files=os.listdir('/home/austinc/public_html/swish2/wnba_averages/')
 for year in range(wnba_start_year,wnba_current_year+1,1):
 	if year+'_pickle' not in files:
 		wnba_averages(year)
 
-files=os.listdir('/home/austinc/public_html/shotchart/averages/d_averages/')
+files=os.listdir('/home/austinc/public_html/swish2/dleague_averages')
 for year in range(d_start_year,current_year+1,1):
 	if year+'_pickle' not in files:
 		dleague_averages(year)
@@ -414,17 +413,40 @@ cur=con.cursor()
 
 # Write all unique player files for populating dropdowns
 for year in range(nba_start_year,current_year+1,1):
-	cur.execute("""SELECT DISTINCT year,player FROM shots2 INTO outfile '/home/austinc/public_html/swish/player_menus/players_%s' FIELDS TERMINATED BY ',' ENCLOSED BY '"' LINES TERMINATED BY '\n'""", (year))
+	cur.execute("""SELECT DISTINCT year,player FROM shots2 INTO outfile '/home/austinc/public_html/swish2/menus_nba/players_%s' FIELDS TERMINATED BY ',' ENCLOSED BY '"' LINES TERMINATED BY '\n'""", (year))
 
 for year in range(wnba_start_year,wnba_current_year+1,1):
-	cur.execute("""SELECT DISTINCT year,player FROM shots_w INTO outfile '/home/austinc/public_html/swish/player_menus/wnba/players_%s' FIELDS TERMINATED BY ',' ENCLOSED BY '"' LINES TERMINATED BY '\n'""", (year))
+	cur.execute("""SELECT DISTINCT year,player FROM shots2_wnba INTO outfile '/home/austinc/public_html/swish2/menus_wnba/players_%s' FIELDS TERMINATED BY ',' ENCLOSED BY '"' LINES TERMINATED BY '\n'""", (year))
 
 for year in range (d_start_year,current_year+1,1):
-	cur.execute("""SELECT DISTINCT year,player FROM shots_d INTO outfile '/home/austinc/public_html/swish/player_menus/d/players_%s' FIELDS TERMINATED BY ',' ENCLOSED BY '"' LINES TERMINATED BY '\n'""", (year))
+	cur.execute("""SELECT DISTINCT year,player FROM shots2_dleague INTO outfile '/home/austinc/public_html/swish2/menus_dleague/players_%s' FIELDS TERMINATED BY ',' ENCLOSED BY '"' LINES TERMINATED BY '\n'""", (year))
 
 # Write the year dropdowns
+with open ('/home/austinc/public_html/swish2/menus_nba/year_menu','wb') as csvfile:
+	writer=csv.writer(csvfile)
+	for year in range(nba_start_year,current_year+1,1):
+		writer.writerow(year)
+
+with open ('/home/austinc/public_html/swish2/menus_wnba/year_menu','wb') as csvfile:
+	writer=csv.writer(csvfile)
+	for year in range(wnba_start_year,wnba_current_year+1,1):
+		writer.writerow(year)
+
+with open ('/home/austinc/public_html/swish2/menus_dleague/year_menu','wb') as csvfile:
+	writer=csv.writer(csvfile)
+	for year in range(d_start_year,current_year+1,1):
+		writer.writerow(year)
 
 # Write all unique teams for populating dropdowns
+for year in range(nba_start_year,current_year+1,1):
+	cur.execute("""SELECT DISTINCT year,offense_team FROM shots2 INTO outfile '/home/austinc/public_html/swish2/menus_nba/teams_%s' FIELDS TERMINATED BY ',' ENCLOSED BY '"' LINES TERMINATED BY '\n'""", (year))
+
+for year in range(wnba_start_year,wnba_current_year+1,1):
+	cur.execute("""SELECT DISTINCT year,offense_team FROM shots2_wnba INTO outfile '/home/austinc/public_html/swish2/menus_wnba/teams_%s' FIELDS TERMINATED BY ',' ENCLOSED BY '"' LINES TERMINATED BY '\n'""", (year))
+
+for year in range(d_start_year,current_year+1,1):
+	cur.execute("""SELECT DISTINCT year,offense_team FROM shots2_dleague INTO outfile '/home/austinc/public_html/swish2/menus_dleague/teams_%s' FIELDS TERMINATED BY ',' ENCLOSED BY '"' LINES TERMINATED BY '\n'""", (year))
+
 
 # Finished!
 con.close()

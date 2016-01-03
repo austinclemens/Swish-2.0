@@ -343,13 +343,13 @@ $('.input-daterange input').each(function() {
     });
 });
 
-// Function to call update_players.py and get list for dropdown
+// Function to update player dropdown
 $("#year_select").change(function() {
 	var year=$( "#year_select" ).val()
 	$("#player_select").empty()
 
 	$.ajax({
-		url: "player_menus/players_"+year+".csv",
+		url: "nba_menus/players_"+year+".csv",
 		success: function(response){
 			response=response.split(/\r\n|\n/)
 
@@ -470,9 +470,9 @@ function tag_court() {
 }
 
 function head(name,details) {
-	var name=court.text(0,42,name).attr({id:'temp',fontFamily:"Raleway",fontSize:33,fill:"#505050",'text-anchor':'start','font-weight':600})
+	var name=court.text(0,47,name).attr({id:'temp',fontFamily:"Raleway",fontSize:33,fill:"#505050",'text-anchor':'start','font-weight':600})
 	coords=name.getBBox()
-	court.text(coords.x2+15,42,details).attr({id:'temp',fontFamily:"Abel",fontSize:15,fill:'black','text-anchor':'start'})
+	court.text(coords.x2+15,47,details).attr({id:'temp',fontFamily:"Abel",fontSize:15,fill:'black','text-anchor':'start'})
 }
 
 function draw_key() {

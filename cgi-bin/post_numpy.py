@@ -3,7 +3,7 @@ from __future__ import division
 import cgi
 import MySQLdb
 from json import dumps
-from pickle import load
+import csv
 from numpy import logical_and, logical_or, concatenate, sqrt, array, sum, empty
 import cgitb
 
@@ -206,12 +206,14 @@ if year=='career':
 	current=datetime.date.today().year
 	if datetime.date.today().month<8:
 		current=year-1
-	with open("../shotcharts/averages/"+current+"_pickle",'rb') as cfile:
-		average_csv=load(cfile)
+	with open("../swish2/nba_averages/players_"+current+".csv",'rb') as cfile:
+		reader=csv.reader(cfile)
+		average_csv=[row for row in reader]
 
 if year!='career':
-	with open("../shotcharts/averages/%s_pickle" % (year),'rb') as cfile:
-		average_csv=load(cfile)
+	with open("../swish2/nba_averages/players_%s.csv" % (year),'rb') as cfile:
+		reader=csv.reader(cfile)
+		average_csv=[row for row in reader]
 
 # if hide=="true" and int(chart_type)==1:
 # 	players="A mystery player!"
