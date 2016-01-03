@@ -4,12 +4,18 @@ import cgi
 import MySQLdb
 from json import dumps
 from pickle import load
+# import numpy as np
 from numpy import logical_and, logical_or, concatenate, sqrt, array, sum, empty
-import cgitb
+# import cgitb
 
-cgitb.enable()
+# cgitb.enable()
 
-mysqlparam={'user':'austinc_shotchar','passwd':'scriptpass1.','host':'184.164.140.34','db':'austinc_allshotdata','port':3306} 
+# array=np.array
+# sqrt=np.sqrt
+# sum=np.sum
+# logical_and=np.logical_and
+# logical_or=np.logical_or
+# concatenate=np.concatenate
 
 def chart(shots,average_data,efficiency):
 	# 3pt, made, x, y
@@ -24,7 +30,7 @@ def chart(shots,average_data,efficiency):
 def circle_chunk(shots_temp,efficiency,average_data):
 	# This function takes a raw collection of shots and chunks them into 1,600 locations around the court (1ft x 1ft boxes)
 	# box_matrix gives top right and bottom left coordinates for all boxes. For each box, we need a number of shots, a volume of shots in the surrounding area, a weighted FG% based on inverse distance, and a raw FG%
-	output=empty([1600, 6])
+	output=empty([1600, 8])
 	total=len(shots_temp)
 	# append=output.append
 	# format of shots_temp is: [3pt dummy, made shot dummy, x, y]
@@ -32,48 +38,95 @@ def circle_chunk(shots_temp,efficiency,average_data):
 	lenc=len
 	sumc=sum
 
-	for i,box in enumerate(box_matrix):
-		# box_matrix is all 1,600 court locations. Get x and y centers by adding 5 to upper left corner of box.
-		x_center=box[0]+5
-		y_center=box[1]+5
-		num_shots=lenc(shots_temp[logical_and(logical_and(shots_temp[:,3]>=box[0],shots_temp[:,3]<box[2]),logical_and(shots_temp[:,2]>=box[1],shots_temp[:,2]<box[3]))])
-		# get number of shots from the box and skip all the hard math if there are no shots in the box.
-		if num_shots>0:		
-			manip=shots_temp.copy()
-			# c1 - vector of distances to box center
-			c1=((manip[:,3:4]-x_center)**2)+((manip[:,2:3]-y_center)**2)
-			manip=concatenate((manip,sqrt(c1.reshape(lenc(c1),1))),axis=1)
-			# eliminate all shots >3 feet away.
-			manip=manip[manip[:,-1]<30]
+	# These two efficiency ifs are nearly identical - moved it out of the loop so it is just checked once
+	if efficiency=='1':
+		for i,box in enumerate(box_matrix):
+			# box_matrix is all 1,600 court locations. Get x and y centers by adding 5 to upper left corner of box.
+			x_center=box[0]+5
+			y_center=box[1]+5
+			num_shots=lenc(shots_temp[logical_and(logical_and(shots_temp[:,3]>=box[0],shots_temp[:,3]<box[2]),logical_and(shots_temp[:,2]>=box[1],shots_temp[:,2]<box[3]))])
+			# get number of shots from the box and skip all the hard math if there are no shots in the box.
+			if num_shots>0:		
+				manip=shots_temp.copy()
+				# c1 - vector of distances to box center
+				c1=((manip[:,3:4]-x_center)**2)+((manip[:,2:3]-y_center)**2)
+				manip=concatenate((manip,sqrt(c1.reshape(lenc(c1),1))),axis=1)
+				# eliminate all shots >3 feet away.
+				manip=manip[manip[:,-1]<30]
 
-			# get percent of shots in a 5-foot box.
-			per_5box=lenc(manip)/total
+				# get percent of shots in a 5-foot box.
+				per_5box=lenc(manip)/total
+				
+				# weighting procedure for weighted fg%
+				c1=1/sqrt(manip[:,4:5])
+				c2=c1*manip[:,1:2]
+				shots_made_smooth=sumc(c2,0)
+				num_shots_smooth=sumc(c1,0)
+
+				# weighting for distance
+				c3=c1*manip[:,4:5]
+				distance_weight=sumc(c3,0)
+
+				# unweighted fg%
+				shots_made_raw=manip[:,1].sum()
+				num_shots_raw=lenc(manip)
+
+				raw_fg=shots_made_raw/num_shots_raw
+
+				# Check to see if box is a 3-box, calculate pps appropriately.
+				three_regions=[13,14,15,16,4,5]
+				if int(box[4]) in three_regions:
+					pps_made_smooth=shots_made_smooth*1.5
+				if int(box[4]) not in three_regions:
+					pps_made_smooth=shots_made_smooth
+				smooth_fg=2*pps_made_smooth/num_shots_smooth
+				smooth_distance=distance_weight/num_shots_smooth
+
+				output[i]=array([box[0],box[1],num_shots,smooth_fg,per_5box,raw_fg,distance_weight])
+				# coord, coord, number of shots, smooth_fg, percent of shots within 3 feet, pure_fg
 			
-			# weighting procedure for weighted fg%
-			c1=1/sqrt(manip[:,4:5])
-			c2=c1*manip[:,1:2]
-			shots_made_smooth=sumc(c2,0)
-			num_shots_smooth=sumc(c1,0)
+			if num_shots==0:
+				output[i]=array([box[0],box[1],0,0,0,0,0])
+	
+	if efficiency!='1':
+		for i,box in enumerate(box_matrix):
+			x_center=box[0]+5
+			y_center=box[1]+5
+			num_shots=lenc(shots_temp[logical_and(logical_and(shots_temp[:,3]>=box[0],shots_temp[:,3]<box[2]),logical_and(shots_temp[:,2]>=box[1],shots_temp[:,2]<box[3]))])
+			if num_shots>0:			
+				manip=shots_temp.copy()
+				# c1 - vector of distances to box center
+				c1=((manip[:,3:4]-x_center)**2)+((manip[:,2:3]-y_center)**2)
+				manip=concatenate((manip,sqrt(c1.reshape(lenc(c1),1))),axis=1)
+				# eliminate all shots >3 feet away.
+				manip=manip[manip[:,-1]<30]
 
-			# unweighted fg%
-			shots_made_raw=manip[:,1].sum()
-			num_shots_raw=lenc(manip)
+				# get percent of shots in a 3-foot box.
+				per_5box=lenc(manip)/total
+				
+				# weighting procedure for weighted fg%
+				c1=1/sqrt(manip[:,5:6])
+				c2=c1*manip[:,1:2]
+				shots_made_smooth=sumc(c2,0)
+				num_shots_smooth=sumc(c1,0)
 
-			raw_fg=shots_made_raw/num_shots_raw
+				# weighting for distance
+				c3=c1*manip[:,4:5]
+				distance_weight=sumc(c3,0)/num_shots_smooth
 
-			# Check to see if box is a 3-box, calculate pps appropriately.
-			# three_regions=[13,14,15,16,4,5]
-			# if int(box[4]) in three_regions:
-			# 	pps_made_smooth=shots_made_smooth*1.5
-			# if int(box[4]) not in three_regions:
-			# 	pps_made_smooth=shots_made_smooth
-			smooth_fg=shots_made_smooth/num_shots_smooth
+				# unweighted fg%
+				shots_made_raw=manip[:,1].sum()
+				num_shots_raw=lenc(manip)
 
-			output[i]=array([box[0],box[1],num_shots,smooth_fg-average_data[i][2],per_5box,raw_fg])
-			# coord, coord, number of shots, smooth_fg, percent of shots within 3 feet, pure_fg
-		
-		if num_shots==0:
-			output[i]=array([box[0],box[1],0,0,0,0])
+				smooth_fg=shots_made_smooth/num_shots_smooth
+				raw_fg=shots_made_raw/num_shots_raw
+
+				# output[i]=array([box[0],box[1],num_shots,smooth_fg,per_5box,raw_fg])
+				# coord, coord, number of shots, smooth_fg over average, smooth_Fg, percent of shots within 3 feet, pure_fg
+				output[i]=array([box[0],box[1],num_shots,smooth_fg-average_data[i][2],smooth_fg,per_5box,raw_fg,distance_weight])
+			
+			if num_shots==0:
+				output[i]=array([box[0],box[1],0,0,0,0,0,0])
 	
 	return output
 
@@ -81,6 +134,11 @@ box_matrix=array([[-52.5, -250, -42.5, -240, 4], [-42.5, -250, -32.5, -240, 4], 
 	
 data = cgi.FieldStorage()
 player1=data.getfirst('player1')
+player2=data.getfirst('player2')
+player3=data.getfirst('player3')
+player4=data.getfirst('player4')
+player5=data.getfirst('player5')
+
 year=data.getfirst('year')
 season=data.getfirst('season')
 efficiency=data.getfirst('efficiency')
@@ -92,13 +150,13 @@ offense_defense=data.getfirst('defense_offense')
 chart_type=data.getfirst('chart_type')
 hide=data.getfirst('hide')
 
-# if chart_type==None:
-# 	chart_type=1
-# 	player1="Dirk Nowitzki"
-# 	year="2014"
-# 	season="Regular season"
+if chart_type==None:
+	chart_type=1
+	player1="Dirk Nowitzki"
+	year="2014"
+	season="Regular season"
 
-if season=="Regular Season":
+if season=="Regular season":
 	season2=0
 if season=="Playoffs":
 	season2=1
@@ -110,9 +168,14 @@ if int(chart_type)==3:
 	append2=""
 	pre_append=""
 	post_append=""
-	year3="%02d" % (int(year[2:4])+1,)
-	year2=year+'-'+year3[-2:]
-	y_string="='%s'" % (year)
+	if year!='career':
+		year3="%02d" % (int(year[2:4])+1,)
+		year2=year+'-'+year3[-2:]
+		y_string="='%s'" % (year)
+
+	if year=='career':
+		y_string=">'1999'"
+		year2='career'
 
 	if int(offense_defense)==0:
 		if startdate!=None and enddate!=None:
@@ -136,8 +199,8 @@ if int(chart_type)==3:
 	if startdate==None or enddate==None:
 		details="%s %s, %s" % (year2,season.lower(),add)
 
-	if quarter!='all':
-		if quarter=="last4":
+	if quarter!='off':
+		if quarter=="4_minutes":
 			append=" AND seconds_remain<241 AND quarter=4"
 			details=details+", last 4 minutes"
 		else:
@@ -164,6 +227,12 @@ if int(chart_type)==3:
 
 	string=string+append+post_append
 
+	if efficiency=='1':
+		bits=[3,1]
+		details=details+', points per shot'
+	if efficiency!='1':
+		bits=[3,0]
+
 if int(chart_type)==1:
 	if year=='career':
 		string='player="%s" AND season_type="%s"' % (player1,season2)
@@ -180,44 +249,102 @@ if int(chart_type)==1:
 	if efficiency!='1':
 		bits=[1,0]
 
+if int(chart_type)==2:
+	append=""
+	append2=""
+	pre_append=""
+	post_append=""
+	year3="%02d" % (int(year[2:4])+1,)
+	year2=year+'-'+year3[-2:]
+
+	if startdate!=None and enddate!=None:
+		startdate=startdate[6:]+"-"+startdate[0:2]+"-"+startdate[3:5]
+		enddate=enddate[6:]+"-"+enddate[0:2]+"-"+enddate[3:5]
+		pre_append="INNER JOIN general_game ON general_game.gameid=shots.gameid"
+		post_append=" AND date>='%s' AND date<='%s'" % (startdate,enddate)
+		details="between %s and %s" % (startdate,enddate)
+
+	if startdate==None or enddate==None:
+		details="%s %s" % (year2,season.lower())
+
+	if quarter!='off':
+		if quarter=="4_minutes":
+			append=" AND seconds_remain<241 AND quarter=4"
+			details=details+", last 4 minutes"
+		else:
+			append=" AND quarter=%s" % (quarter)
+			if int(quarter)==1:
+				quart='1st'
+			if int(quarter)==2:
+				quart='2nd'
+			if int(quarter)==3:
+				quart='3rd'
+			if int(quarter)==4:
+				quart='4th'
+			details=details+", %s quarters" % (quart)
+
+	string='(player="%s"' % (player1)
+	players=player1
+
+	if player2!='off':
+		string=string+' OR player="%s"' % (player2)
+		players=players+", %s" % (player2)
+	if player3!='off':
+		string=string+' OR player="%s"' % (player3)
+		players=players+", %s" % (player3)
+	if player4!='off':
+		string=string+' OR player="%s"' % (player4)
+		players=players+", %s" % (player4)
+	if player5!='off':
+		string=string+' OR player="%s"' % (player5)
+		players=players+", %s" % (player5)
+
+	string=string+')'
+
+	if startdate!=None and enddate!=None:
+		string=string+' AND season_type=%s' % (season2)
+	if startdate==None or enddate==None:
+		string=string+' AND year=%s AND season_type=%s' % (year,season2)
+	string=string+append+post_append
+
+	if efficiency=='1':
+		bits=[2,1]
+		details=details+', points per shot'
+	if efficiency!='1':
+		bits=[2,0]
+
 
 con=MySQLdb.connect(read_default_file="/home/austinc/etc/my.cnf", host='localhost', db='austinc_allshotdata')
-# con=MySQLdb.connect(user=mysqlparam['user'],passwd=mysqlparam['passwd'],host=mysqlparam['host'],port=mysqlparam['port'],db=mysqlparam['db'])
-
 cur=con.cursor()
 if startdate==None or enddate==None:
-	cur.execute("""SELECT three,made,x,y FROM shots2 WHERE %s""" % (string))
+	cur.execute("""SELECT three,made,x,y,d_distance FROM shots_distance WHERE %s""" % (string))
 if startdate!=None and enddate!=None:
-	cur.execute("SELECT three,made,x,y FROM shots2 "+pre_append+" WHERE %s" % (string))
+	cur.execute("SELECT three,made,x,y,d_distance FROM shots_distance "+pre_append+" WHERE %s" % (string))
 
 rows=cur.fetchall()
 con.close()
 
 rows=array(rows,float)
-# if hide!="true":
-shotnum=len(rows)
-details=details+', %s shots' % (shotnum)
-
-# if hide=="true":
-# 	shotnum=int(round(len(rows)/100)*100)
-# 	details=details+', about %s shots' % (shotnum)
+if hide!="true":
+	shotnum=len(rows)
+	details=details+', %s shots' % (shotnum)
+if hide=="true":
+	shotnum=int(round(len(rows)/100)*100)
+	details=details+', about %s shots' % (shotnum)
 
 if year=='career':
-	current=datetime.date.today().year
-	if datetime.date.today().month<8:
-		current=year-1
-	with open("../shotcharts/averages/"+current+"_pickle",'rb') as cfile:
+	with open("../shotcharts/averages/2014_pickle",'rb') as cfile:
 		average_csv=load(cfile)
 
 if year!='career':
 	with open("../shotcharts/averages/%s_pickle" % (year),'rb') as cfile:
 		average_csv=load(cfile)
 
-# if hide=="true" and int(chart_type)==1:
-# 	players="A mystery player!"
+if hide=="true" and int(chart_type)==1:
+	players="A mystery player!"
 
-# if hide=="true" and int(chart_type)==3:
-# 	players="A mystery team!"
+if hide=="true" and int(chart_type)==3:
+	players="A mystery team!"
 
 results_csv=chart(rows,average_csv,efficiency)
 results_csv=results_csv.tolist()
@@ -250,7 +377,6 @@ volume_three = len(three_rows)/len(rows)
 
 results_csv.append([fg_rim,volume_rim,fg_mid,volume_mid,fg_three,volume_three])
 
-# results=dumps(average_csv)
 results=dumps(results_csv)
 
 print "Content-Type: text/html\n\n"

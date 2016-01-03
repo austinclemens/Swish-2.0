@@ -470,9 +470,9 @@ function tag_court() {
 }
 
 function head(name,details) {
-	var name=court.text(0,42,name).attr({fontFamily:"Raleway",fontSize:33,fill:"#505050",'text-anchor':'start','font-weight':600})
+	var name=court.text(0,42,name).attr({id:'temp',fontFamily:"Raleway",fontSize:33,fill:"#505050",'text-anchor':'start','font-weight':600})
 	coords=name.getBBox()
-	court.text(coords.x2+15,42,details).attr({fontFamily:"Abel",fontSize:15,fill:'black','text-anchor':'start'})
+	court.text(coords.x2+15,42,details).attr({id:'temp',fontFamily:"Abel",fontSize:15,fill:'black','text-anchor':'start'})
 }
 
 function draw_key() {
@@ -505,7 +505,7 @@ window.onload=function() {
 	$('#year_select').append(new Option('Career', 'Career'));
 	$('#year_select').change();
 
-    dict={chart_type:'1',player1:'Dirk Nowitzki',year:'2014',efficiency:'FG',season:'Regular season'}
+    dict={chart_type:'1',player1:'Dirk Nowitzki',year:'2011',efficiency:'FG',season:'Regular Season'}
     load_pshotnew(dict)
 }
 
@@ -516,11 +516,12 @@ function kobe_me() {
 function load_pshotnew(dict) {
 	// var target=document.getElementById('container')
 	// var spinner=new Spinner(opts).spin(target)
+	court.selectAll("[id='temp']").remove()
 	court.append(g)
 	g.animate({opacity: 1},500);
 	console.log(dict)
 	$.ajax({
-	url: "http://www.austinclemens.com/cgi-bin/post_numpy_dist.py",
+	url: "http://www.austinclemens.com/cgi-bin/post_numpy.py",
 	type: "post",
 	datatype: "html",
 	data:   dict,
@@ -549,7 +550,7 @@ function drawcourt_pshot(shot_data) {
   			var Y = shot_data[n][0]*1.8+144.5+9 ;
   			size=choosesize(shot_data[n][2],min,max,16)
 
-  			var square_fg=court.rect(X,Y,0,0,2,2).attr({fill:choosecolor(shot_data[n][3]),stroke:'#999999',strokeWidth:0,'shape-rendering':'crispEdges'});
+  			var square_fg=court.rect(X,Y,0,0,2,2).attr({id:'temp',fill:choosecolor(shot_data[n][3]),stroke:'#999999',strokeWidth:0,'shape-rendering':'crispEdges'});
   			square_fg.animate({x:X-(size/2),y:Y-(size/2),height:size,width:size},1500,mina.bounce)
   		}
 	}
