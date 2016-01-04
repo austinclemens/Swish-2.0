@@ -206,12 +206,12 @@ if year=='career':
 	current=datetime.date.today().year
 	if datetime.date.today().month<8:
 		current=year-1
-	with open("../swish2/nba_averages/players_"+current+".csv",'rb') as cfile:
+	with open("../swish2/nba_averages/average_"+current+".csv",'rb') as cfile:
 		reader=csv.reader(cfile)
 		average_csv=[row for row in reader]
 
 if year!='career':
-	with open("../swish2/nba_averages/players_%s.csv" % (year),'rb') as cfile:
+	with open("../swish2/nba_averages/average_%s.csv" % (year),'rb') as cfile:
 		reader=csv.reader(cfile)
 		average_csv=[row for row in reader]
 

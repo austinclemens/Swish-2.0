@@ -76,16 +76,11 @@ body {background-color:#eef0f0;}
 	<div class='row'>
 		<div class='small-12 columns'>
 			<span class='head'>Swish 2.0</span>
-			<!-- <h2><span class='under'>NBA</span>/<a href src=''>WNBA</a>/<a href src=''>D-League</a> shotcharts by <a href src='http://www.austinclemens.com'>Austin Clemens</a></h2> -->
 			<div class='top'>
 				<span class='navigation'>NBA</span><span class='pipe'>|</span>
 				<span class='navigation'>WNBA</span><span class='pipe'>|</span>
 				<span class='navigation'>D-League</span><span class='pipe'>|</span>
 				<span class='navigation'><i class="fa fa-twitter fa-inverse"></i>austinclemens2</span>
-				<!-- <h2><a href='' class='current'>NBA</a></h2>
-				<h2><a href=''>WNBA</a></h2>
-				<h2><a href=''>D-League</a></h2>
-				<h2><a href='http://www.twitter.com/austinclemens2'><i class="fa fa-twitter fa-inverse"></i>austinclemens2</a></h2> -->
 			</div>
 	</div>
 </header>
@@ -111,9 +106,7 @@ body {background-color:#eef0f0;}
 
 <div class='row'>
 	<div class='small-12 small-centered columns text-center'>
-		<!-- <div class='button-group expanded'> -->
-			<button class="button left" onchange='kobe_me' href="#"><i class="fa fa-trophy"></i>Kobe me</button><button class="button middle" onclick='load_chart()' href="#"><i class="fa fa-refresh"></i>Chart it</button><button class="button right" href="#"><i class="fa fa-download"></i>Download</button>
-		<!-- </div> -->
+		<button class="button left" onchange='kobe_me' href="#"><i class="fa fa-trophy"></i>Kobe me</button><button class="button middle" onclick='load_chart()' href="#"><i class="fa fa-refresh"></i>Chart it</button><button class="button right" href="#"><i class="fa fa-download"></i>Download</button>
 	</div>
 </div>
 
@@ -202,23 +195,7 @@ body {background-color:#eef0f0;}
 		<div class='small-4 columns'>
 			<div class='input-group'>
 				<span class='input-group-label'>Season</span>
-				<select>
-					<option value="Stephen Curry">2015-2016</option>
-					<option value="Dirk Nowitzki">2014-2015</option>
-					<option value="Dirk Nowitzki">2013-2014</option>
-					<option value="Dirk Nowitzki">2012-2013</option>
-					<option value="Dirk Nowitzki">2011-2012</option>
-					<option value="Dirk Nowitzki">2010-2011</option>
-					<option value="Dirk Nowitzki">2009-2011</option>
-					<option value="Dirk Nowitzki">2008-2009</option>
-					<option value="Dirk Nowitzki">2007-2008</option>
-					<option value="Dirk Nowitzki">2006-2007</option>
-					<option value="Dirk Nowitzki">2005-2006</option>
-					<option value="Dirk Nowitzki">2004-2005</option>
-					<option value="Dirk Nowitzki">2003-2004</option>
-					<option value="Dirk Nowitzki">2002-2003</option>
-					<option value="Dirk Nowitzki">2001-2002</option>
-					<option value="Dirk Nowitzki">2000-2001</option>
+				<select id='year_select'>
 				</select>
 			</div>
 		</div>
@@ -237,8 +214,7 @@ body {background-color:#eef0f0;}
 		<div class='small-4 columns'>
 			<div class='input-group'>
 				<span class='input-group-label'>Team</span>
-				<select>
-					<option value="DAL">Dallas Mavericks</option>
+				<select id='team_select'>
 				</select>
 			</div>
 		</div>
@@ -257,12 +233,12 @@ body {background-color:#eef0f0;}
 			<div class='input-group'>
 				<span class='input-group-label'>Quarter</span>
 				<select>
-					<option>Complete Game</option>
-					<option value="Stephen Curry">1st quarter</option>
-					<option value="Dirk Nowitzki">2nd quarter</option>
-					<option value="Dirk Nowitzki">3rd quarter</option>
-					<option value="Dirk Nowitzki">4th quarter</option>
-					<option value="Dirk Nowitzki">Last 4 minutes</option>
+					<option value='all'>Complete Game</option>
+					<option value="1">1st quarter</option>
+					<option value="2">2nd quarter</option>
+					<option value="3">3rd quarter</option>
+					<option value="4">4th quarter</option>
+					<option value="last4">Last 4 minutes</option>
 				</select>
 			</div>
 		</div>
@@ -279,8 +255,8 @@ body {background-color:#eef0f0;}
 			<div class='input-group'>
 				<span class='input-group-label'>Side</span>
 				<select>
-					<option value="Stephen Curry">Offense</option>
-					<option value="Dirk Nowitzki">Defense</option>
+					<option value="1">Offense</option>
+					<option value="0">Defense</option>
 				</select>
 			</div>
 		</div>
@@ -343,7 +319,7 @@ $('.input-daterange input').each(function() {
     });
 });
 
-// Function to update player dropdown
+// update player dropdown
 $("#year_select").change(function() {
 	var year=$( "#year_select" ).val()
 	$("#player_select").empty()
@@ -356,6 +332,24 @@ $("#year_select").change(function() {
 			for (var i=0; i<response.length;i++) {
 				row=response[i].split(',')
 				try{$('#player_select').append(new Option(row[1].replace(/"/g,'')));}catch(err){}
+			}
+		}
+	});
+})
+
+// update team dropdown
+$("#team_select").change(function() {
+	var year=$( "#year_select" ).val()
+	$("#team_select").empty()
+
+	$.ajax({
+		url: "nba_menus/teams_"+year+".csv",
+		success: function(response){
+			response=response.split(/\r\n|\n/)
+
+			for (var i=0; i<response.length;i++) {
+				row=response[i].split(',')
+				try{$('#team_select').append(new Option(row[1].replace(/"/g,'')));}catch(err){}
 			}
 		}
 	});
