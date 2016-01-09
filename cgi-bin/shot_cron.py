@@ -123,8 +123,11 @@ def get_wnba_shots():
 	for year in range(wnba_start_year,wnba_current_year+1,1):
 		for month in range (6,11,1):
 			url='http://data.wnba.com/data/10s/v2015/json/mobile_teams/wnba/%s/league/10_league_schedule_%02d.json' % (year,month)
-			gamedata=urllib2.urlopen(url)
-			data=json.load(gamedata)
+			try:
+				gamedata=urllib2.urlopen(url)
+				data=json.load(gamedata)
+			except:
+				pass
 			try:
 				data=data['mscd']['g']
 				for game in data:
@@ -173,7 +176,7 @@ def get_wnba_shots():
 			else:
 				three=0
 			try:
-				shot_data=[game,shot.attrib['pid'].split('|')[2].split(',')[1]+' '+shot.attrib['pid'].split('|')[2].split(',')[0],offense_team,defense_team,three,made,year,0,0,0,int(shot.attrib['y']),int(shot.attrib['x'])]
+				shot_data=[game,shot.attrib['pid'].split('|')[2].split(',')[1]+' '+shot.attrib['pid'].split('|')[2].split(',')[0],offense_team,defense_team,three,made,int(game[0:4]),0,0,0,int(shot.attrib['y']),int(shot.attrib['x'])]
 				all_shots.append(shot_data)
 			except:
 				pass
@@ -277,7 +280,7 @@ def nba_averages(year):
 	con.close()
 
 	year_average=chart(rows)
-	with open("/home/austinc/public_html/swish2/averages_nba/average_%s.csv" % (year),'wb') as f:
+	with open("/home/austinc/public_html/Swish2/averages_nba/average_%s.csv" % (year),'w') as f:
 		writer=csv.writer(f)
 		for row in year_average:
 			writer.writerow(row)
@@ -289,8 +292,9 @@ def wnba_averages(year):
 	rows=cur.fetchall()
 	con.close()
 
+	print year,len(rows)
 	year_average=chart(rows)
-	with open("/home/austinc/public_html/swish2/averages_wnba/average_%s.csv" % (year),'wb') as f:
+	with open("/home/austinc/public_html/Swish2/averages_wnba/average_%s.csv" % (year),'w') as f:
 		writer=csv.writer(f)
 		for row in year_average:
 			writer.writerow(row)
@@ -303,7 +307,7 @@ def dleague_averages(year):
 	con.close()
 
 	year_average=chart(rows)
-	with open("/home/austinc/public_html/swish2/averages_dleague/average_%s.csv" % (year),'wb') as f:
+	with open("/home/austinc/public_html/Swish2/averages_dleague/average_%s.csv" % (year),'w') as f:
 		writer=csv.writer(f)
 		for row in year_average:
 			writer.writerow(row)
@@ -391,67 +395,76 @@ def get_game_info(game):
 
 
 
+if local==0:
+	# START EXECUTING FUNCTIONS
+	# Get all shots for all leagues
+	# get_nba_shots()
+	# get_wnba_shots()
+	# get_dleague_shots()
 
-# START EXECUTING FUNCTIONS
-# Get all shots for all leagues
-get_nba_shots()
-get_wnba_shots()
-get_dleague_shots()
-
-# Get average files for each league as necessary
-files=os.listdir('/home/austinc/public_html/swish2/nba_averages/')
-for year in range(nba_start_year,current_year+1,1):
-	if 'average_'+year not in files:
-		nba_averages(year)
-
-files=os.listdir('/home/austinc/public_html/swish2/wnba_averages/')
-for year in range(wnba_start_year,wnba_current_year+1,1):
-	if 'average_'+year not in files:
-		wnba_averages(year)
-
-files=os.listdir('/home/austinc/public_html/swish2/dleague_averages')
-for year in range(d_start_year,current_year+1,1):
-	if 'average_'+year not in files:
-		dleague_averages(year)
-
-con=MySQLdb.connect(user=mysqlparam['user'],passwd=mysqlparam['passwd'],host=mysqlparam['host'],port=mysqlparam['port'],db=mysqlparam['db'])
-cur=con.cursor()
-
-# Write all unique player files for populating dropdowns
-for year in range(nba_start_year,current_year+1,1):
-	cur.execute("""SELECT DISTINCT year,player FROM shots2 INTO outfile '/home/austinc/public_html/swish2/menus_nba/players_%s.csv' FIELDS TERMINATED BY ',' ENCLOSED BY '"' LINES TERMINATED BY '\n'""", (year))
-
-for year in range(wnba_start_year,wnba_current_year+1,1):
-	cur.execute("""SELECT DISTINCT year,player FROM shots2_wnba INTO outfile '/home/austinc/public_html/swish2/menus_wnba/players_%s.csv' FIELDS TERMINATED BY ',' ENCLOSED BY '"' LINES TERMINATED BY '\n'""", (year))
-
-for year in range (d_start_year,current_year+1,1):
-	cur.execute("""SELECT DISTINCT year,player FROM shots2_dleague INTO outfile '/home/austinc/public_html/swish2/menus_dleague/players_%s.csv' FIELDS TERMINATED BY ',' ENCLOSED BY '"' LINES TERMINATED BY '\n'""", (year))
-
-# Write the year dropdowns
-with open ('/home/austinc/public_html/swish2/menus_nba/year_menu','wb') as csvfile:
-	writer=csv.writer(csvfile)
+	# Get average files for each league as necessary
+	files=os.listdir('/home/austinc/public_html/Swish2/averages_nba/')
 	for year in range(nba_start_year,current_year+1,1):
-		writer.writerow(year)
+		if 'average_'+str(year)+'.csv' not in files:
+			try:
+				nba_averages(year)
+			except:
+				pass
 
-with open ('/home/austinc/public_html/swish2/menus_wnba/year_menu','wb') as csvfile:
-	writer=csv.writer(csvfile)
+	files=os.listdir('/home/austinc/public_html/Swish2/averages_wnba/')
 	for year in range(wnba_start_year,wnba_current_year+1,1):
-		writer.writerow(year)
+		if 'average_'+str(year)+'.csv' not in files:
+			try:
+				wnba_averages(year)
+			except:
+				pass
 
-with open ('/home/austinc/public_html/swish2/menus_dleague/year_menu','wb') as csvfile:
-	writer=csv.writer(csvfile)
+	files=os.listdir('/home/austinc/public_html/Swish2/averages_dleague')
 	for year in range(d_start_year,current_year+1,1):
-		writer.writerow(year)
+		if 'average_'+str(year)+'.csv' not in files:
+			try:
+				dleague_averages(year)
+			except:
+				pass
 
-# Write all unique teams for populating dropdowns
-for year in range(nba_start_year,current_year+1,1):
-	cur.execute("""SELECT DISTINCT year,offense_team FROM shots2 INTO outfile '/home/austinc/public_html/swish2/menus_nba/teams_%s.csv' FIELDS TERMINATED BY ',' ENCLOSED BY '"' LINES TERMINATED BY '\n'""", (year))
+	con=MySQLdb.connect(user=mysqlparam['user'],passwd=mysqlparam['passwd'],host=mysqlparam['host'],port=mysqlparam['port'],db=mysqlparam['db'])
+	cur=con.cursor()
 
-for year in range(wnba_start_year,wnba_current_year+1,1):
-	cur.execute("""SELECT DISTINCT year,offense_team FROM shots2_wnba INTO outfile '/home/austinc/public_html/swish2/menus_wnba/teams_%s.csv' FIELDS TERMINATED BY ',' ENCLOSED BY '"' LINES TERMINATED BY '\n'""", (year))
+	# Write all unique player files for populating dropdowns
+	for year in range(nba_start_year,current_year+1,1):
+		cur.execute("""SELECT DISTINCT year,player FROM shots2 INTO outfile '/home/austinc/public_html/Swish2/menus_nba/players_%s.csv' FIELDS TERMINATED BY ',' ENCLOSED BY '"' LINES TERMINATED BY '\n'""", (year))
 
-for year in range(d_start_year,current_year+1,1):
-	cur.execute("""SELECT DISTINCT year,offense_team FROM shots2_dleague INTO outfile '/home/austinc/public_html/swish2/menus_dleague/teams_%s.csv' FIELDS TERMINATED BY ',' ENCLOSED BY '"' LINES TERMINATED BY '\n'""", (year))
+	for year in range(wnba_start_year,wnba_current_year+1,1):
+		cur.execute("""SELECT DISTINCT year,player FROM shots2_wnba INTO outfile '/home/austinc/public_html/Swish2/menus_wnba/players_%s.csv' FIELDS TERMINATED BY ',' ENCLOSED BY '"' LINES TERMINATED BY '\n'""", (year))
+
+	for year in range (d_start_year,current_year+1,1):
+		cur.execute("""SELECT DISTINCT year,player FROM shots2_dleague INTO outfile '/home/austinc/public_html/Swish2/menus_dleague/players_%s.csv' FIELDS TERMINATED BY ',' ENCLOSED BY '"' LINES TERMINATED BY '\n'""", (year))
+
+	# Write the year dropdowns
+	with open ('/home/austinc/public_html/Swish2/menus_nba/year_menu','w') as csvfile:
+		writer=csv.writer(csvfile)
+		for year in range(nba_start_year,current_year+1,1):
+			writer.writerow(year)
+
+	with open ('/home/austinc/public_html/Swish2/menus_wnba/year_menu','w') as csvfile:
+		writer=csv.writer(csvfile)
+		for year in range(wnba_start_year,wnba_current_year+1,1):
+			writer.writerow(year)
+
+	with open ('/home/austinc/public_html/Swish2/menus_dleague/year_menu','w') as csvfile:
+		writer=csv.writer(csvfile)
+		for year in range(d_start_year,current_year+1,1):
+			writer.writerow(year)
+
+	# Write all unique teams for populating dropdowns
+	for year in range(nba_start_year,current_year+1,1):
+		cur.execute("""SELECT DISTINCT year,offense_team FROM shots2 INTO outfile '/home/austinc/public_html/Swish2/menus_nba/teams_%s.csv' FIELDS TERMINATED BY ',' ENCLOSED BY '"' LINES TERMINATED BY '\n'""", (year))
+
+	for year in range(wnba_start_year,wnba_current_year+1,1):
+		cur.execute("""SELECT DISTINCT year,offense_team FROM shots2_wnba INTO outfile '/home/austinc/public_html/Swish2/menus_wnba/teams_%s.csv' FIELDS TERMINATED BY ',' ENCLOSED BY '"' LINES TERMINATED BY '\n'""", (year))
+
+	for year in range(d_start_year,current_year+1,1):
+		cur.execute("""SELECT DISTINCT year,offense_team FROM shots2_dleague INTO outfile '/home/austinc/public_html/Swish2/menus_dleague/teams_%s.csv' FIELDS TERMINATED BY ',' ENCLOSED BY '"' LINES TERMINATED BY '\n'""", (year))
 
 
 # Finished!
