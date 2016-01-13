@@ -49,7 +49,7 @@ def get_nba_shots():
 	# playoff games
 	for year in range(nba_start_year,current_year+1,1):
 		string='004'+str(year)[2:]+'0'
-		for game in range(1,106,1):
+		for game in range(1,408,1):
 			game="%04d" % (game)
 			game=string+game
 			games.append(game)
@@ -483,8 +483,8 @@ if local==0:
 	with open("/home/austinc/public_html/Swish2/menus_nba/year_menu.csv",'w') as f:
 		writer=csv.writer(f)
 		for row in rows[:-1]:
-			value=str(row[0])+'-'+str(int(row[0])+1)
-			writer.writerow(row[0]+)
+			value=[str(row[0])+'-'+str(int(row[0])+1)]
+			writer.writerow(value)
 
 	con=MySQLdb.connect(user=mysqlparam['user'],passwd=mysqlparam['passwd'],host=mysqlparam['host'],port=mysqlparam['port'],db=mysqlparam['db'])
 	cur=con.cursor()
@@ -508,8 +508,8 @@ if local==0:
 	with open("/home/austinc/public_html/Swish2/menus_dleague/year_menu.csv",'w') as f:
 		writer=csv.writer(f)
 		for row in rows[:-1]:
-			value=str(row[0])+'-'+str(int(row[0])+1)
-			writer.writerow(row)
+			value=[str(row[0])+'-'+str(int(row[0])+1)]
+			writer.writerow(value)
 
 	# Write all unique teams for populating dropdowns
 	for year in range(nba_start_year,current_year+1,1):

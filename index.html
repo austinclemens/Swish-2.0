@@ -546,7 +546,7 @@ function load_pshotnew(dict) {
 	// var spinner=new Spinner(opts).spin(target)
 	court.selectAll("[id='temp']").remove()
 	court.append(g)
-	g.animate({opacity: 1},500);
+	g.animate({opacity: 1},200);
 	console.log(dict)
 	$.ajax({
 	url: "http://www.austinclemens.com/cgi-bin/post_numpy2.py",
@@ -557,7 +557,6 @@ function load_pshotnew(dict) {
 		console.log(response)
 		var shot_data = eval("(" + response + ")");
 		drawcourt_pshot(shot_data)
-		g.animate({opacity: 0},500);
 	}
 	});
 }
@@ -566,23 +565,33 @@ function drawcourt_pshot(dictionary) {
 	shot_data=dictionary['chart']
 	head(dictionary['players'],dictionary['details'])
 
-	var max=shot_data[0][2]
-	var min=shot_data[shot_data.length-5][2]
+	if(dictionary['under100']==0){
+		var draws=200
+		var max=shot_data[0][2]
+		var min=shot_data[shot_data.length-5][2]
 
-	var draws=200
-	var max=shot_data[0][2]
-	var min=shot_data[shot_data.length-5][2]
+		for(var n = 0; n < draws; n++) {
+			if (shot_data[n][2]>0 && shot_data[n][5]>0.005){
+				var X = shot_data[n][1]*1.8+450+9 ;
+	  			var Y = shot_data[n][0]*1.8+144.5+9 ;
+	  			size=choosesize(shot_data[n][2],min,max,20)
 
-	for(var n = 0; n < draws; n++) {
-		if (shot_data[n][2]>0 && shot_data[n][5]>0.005){
-			var X = shot_data[n][1]*1.8+450+9 ;
-  			var Y = shot_data[n][0]*1.8+144.5+9 ;
-  			size=choosesize(shot_data[n][2],min,max,16)
+	  			var square_fg=court.rect(X,Y,0,0,2,2).attr({id:'temp',fill:choosecolor(shot_data[n][3]),stroke:'#999999',strokeWidth:0,'shape-rendering':'crispEdges'});
+	  			square_fg.animate({x:X-(size/2),y:Y-(size/2),height:size,width:size},500,mina.bounce)
+	  		}
+		}
+	} else if (dictionary['under100']==1){
+		for(var n = 0; n < shot_data.length; n++) {
+			var X = shot_data[n][2]*1.8+450+9 ;
+  			var Y = shot_data[n][3]*1.8+144.5+9 ;
+  			if(shot_data[n][1]==1){color='#00e500'}else{color='red'}
 
-  			var square_fg=court.rect(X,Y,0,0,2,2).attr({id:'temp',fill:choosecolor(shot_data[n][3]),stroke:'#999999',strokeWidth:0,'shape-rendering':'crispEdges'});
-  			square_fg.animate({x:X-(size/2),y:Y-(size/2),height:size,width:size},1500,mina.bounce)
-  		}
+  			var square_fg=court.circle(X,Y,0).attr({id:'temp',fill:'none',stroke:color,strokeWidth:2});
+  			square_fg.animate({r:3},500,mina.bounce)
+		}
 	}
+
+	g.animate({opacity: 0},200);
 }
 
 function choosecolor(per) {

@@ -9,8 +9,6 @@ import cgitb
 
 cgitb.enable()
 
-mysqlparam={'user':'austinc_shotchar','passwd':'scriptpass1.','host':'184.164.140.34','db':'austinc_allshotdata','port':3306} 
-
 def chart(shots,average_data,efficiency):
 	# 3pt, made, x, y
 	player_data=circle_chunk(shots,efficiency,average_data)
@@ -155,7 +153,7 @@ if int(chart_type)==1:
 		string='player="%s" AND season_type="%s"' % (player1,season2)
 		year2='career'
 	if year!='career':
-		string='player="%s" AND year=%s AND season_type="%s"' % (player1, int(year), season2)
+		string='player="%s" AND year=%s AND season_type=%s' % (player1, int(year), int(season2))
 		year3="%02d" % (int(year[2:4])+1,)
 		year2=year+'-'+year3[-2:]
 	details="%s %s" % (year2,season.lower())
@@ -178,10 +176,9 @@ if quarter!='all':
 		details=details+", %s quarters" % (quart)
 
 con=MySQLdb.connect(read_default_file="/home/austinc/etc/my.cnf", host='localhost', db='austinc_allshotdata')
-# con=MySQLdb.connect(user=mysqlparam['user'],passwd=mysqlparam['passwd'],host=mysqlparam['host'],port=mysqlparam['port'],db=mysqlparam['db'])
 
-# print "Content-Type: text/html\n\n"
-# print """SELECT three,made,x,y FROM shots2 WHERE %s""" % (string)
+print "Content-Type: text/html\n\n"
+print """SELECT three,made,x,y FROM shots2 WHERE %s""" % (string)
 
 cur=con.cursor()
 if startdate==None or enddate==None:
@@ -221,35 +218,40 @@ if year!='career':
 # 	players="A mystery team!"
 
 results_csv={}
-results_csv['chart']=chart(rows,average_csv,efficiency)
-results_csv['chart']=results_csv['chart'].tolist()
+if shotnum>=100:
+	results_csv['chart']=chart(rows,average_csv,efficiency)
+	results_csv['chart']=results_csv['chart'].tolist()
+	results_csv['under100']=0
+else:
+	results_csv['chart']=rows.tolist()
+	results_csv['under100']=1
 results_csv['details']=details
 results_csv['players']=players
 results_csv['rows']=len(rows)
 # results_csv.append(string)
 
-rim_rows = rows[rows[:,2]**2+rows[:,3]**2<80**2]
-if len(rim_rows)>0:
-	fg_rim = rim_rows[:,1].sum()/len(rim_rows)
-if len(rim_rows)==0:
-	fg_rim = 0
-volume_rim = len(rim_rows)/len(rows)
+# rim_rows = rows[rows[:,2]**2+rows[:,3]**2<80**2]
+# if len(rim_rows)>0:
+# 	fg_rim = rim_rows[:,1].sum()/len(rim_rows)
+# if len(rim_rows)==0:
+# 	fg_rim = 0
+# volume_rim = len(rim_rows)/len(rows)
 
-mid_rows = rows[logical_and(logical_and(rows[:,2]**2+rows[:,3]**2>80**2,rows[:,2]**2+rows[:,3]**2<237.5**2),logical_and(rows[:,2]>-220,rows[:,2]<220))] 
-if len(mid_rows)>0:
-	fg_mid = mid_rows[:,1].sum()/len(mid_rows)
-if len(mid_rows)==0:
-	fg_mid = 0
-volume_mid = len(mid_rows)/len(rows)
+# mid_rows = rows[logical_and(logical_and(rows[:,2]**2+rows[:,3]**2>80**2,rows[:,2]**2+rows[:,3]**2<237.5**2),logical_and(rows[:,2]>-220,rows[:,2]<220))] 
+# if len(mid_rows)>0:
+# 	fg_mid = mid_rows[:,1].sum()/len(mid_rows)
+# if len(mid_rows)==0:
+# 	fg_mid = 0
+# volume_mid = len(mid_rows)/len(rows)
 
-three_rows = rows[logical_or(abs(rows[:,2])>=220,rows[:,2]**2+rows[:,3]**2>=237.5**2)]
-if len(three_rows)>0:
-	fg_three = three_rows[:,1].sum()/len(three_rows)
-if len(three_rows)==0:
-	fg_three = 0
-volume_three = len(three_rows)/len(rows)
+# three_rows = rows[logical_or(abs(rows[:,2])>=220,rows[:,2]**2+rows[:,3]**2>=237.5**2)]
+# if len(three_rows)>0:
+# 	fg_three = three_rows[:,1].sum()/len(three_rows)
+# if len(three_rows)==0:
+# 	fg_three = 0
+# volume_three = len(three_rows)/len(rows)
 
-results_csv['regions']=[fg_rim,volume_rim,fg_mid,volume_mid,fg_three,volume_three]
+# results_csv['regions']=[fg_rim,volume_rim,fg_mid,volume_mid,fg_three,volume_three]
 
 # results=dumps(average_csv)
 results=dumps(results_csv)
