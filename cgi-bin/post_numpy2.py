@@ -69,7 +69,7 @@ def circle_chunk(shots_temp,efficiency,average_data):
 			# 	pps_made_smooth=shots_made_smooth
 			smooth_fg=shots_made_smooth/num_shots_smooth
 
-			output[i]=array([box[0],box[1],num_shots,smooth_fg-average_data[i][2],per_5box,raw_fg])
+			output[i]=array([box[0],box[1],num_shots,smooth_fg-float(average_data[i][2]),per_5box,raw_fg])
 			# coord, coord, number of shots, smooth_fg, percent of shots within 3 feet, pure_fg
 		
 		if num_shots==0:
@@ -136,22 +136,6 @@ if int(chart_type)==3:
 	if startdate==None or enddate==None:
 		details="%s %s, %s" % (year2,season.lower(),add)
 
-	if quarter!='all':
-		if quarter=="last4":
-			append=" AND seconds_remain<241 AND quarter=4"
-			details=details+", last 4 minutes"
-		else:
-			append=" AND quarter=%s" % (quarter)
-			if int(quarter)==1:
-				quart='1st'
-			if int(quarter)==2:
-				quart='2nd'
-			if int(quarter)==3:
-				quart='3rd'
-			if int(quarter)==4:
-				quart='4th'
-			details=details+", %s quarters" % (quart)
-
 	if startdate!=None and enddate!=None:
 		startdate=startdate[6:]+"-"+startdate[0:2]+"-"+startdate[3:5]
 		enddate=enddate[6:]+"-"+enddate[0:2]+"-"+enddate[3:5]
@@ -165,6 +149,8 @@ if int(chart_type)==3:
 	string=string+append+post_append
 
 if int(chart_type)==1:
+	append=''
+	post_append=''
 	if year=='career':
 		string='player="%s" AND season_type="%s"' % (player1,season2)
 		year2='career'
@@ -174,19 +160,32 @@ if int(chart_type)==1:
 		year2=year+'-'+year3[-2:]
 	details="%s %s" % (year2,season.lower())
 	players=player1
-	if efficiency=='1':
-		bits=[1,1]
-		details=details+', points per shot'
-	if efficiency!='1':
-		bits=[1,0]
 
+if quarter!='all':
+	if quarter=="last4":
+		append=" AND seconds_remain<241 AND quarter=4"
+		details=details+", last 4 minutes"
+	else:
+		append=" AND quarter=%s" % (quarter)
+		if int(quarter)==1:
+			quart='1st'
+		if int(quarter)==2:
+			quart='2nd'
+		if int(quarter)==3:
+			quart='3rd'
+		if int(quarter)==4:
+			quart='4th'
+		details=details+", %s quarters" % (quart)
 
 con=MySQLdb.connect(read_default_file="/home/austinc/etc/my.cnf", host='localhost', db='austinc_allshotdata')
 # con=MySQLdb.connect(user=mysqlparam['user'],passwd=mysqlparam['passwd'],host=mysqlparam['host'],port=mysqlparam['port'],db=mysqlparam['db'])
 
+# print "Content-Type: text/html\n\n"
+# print """SELECT three,made,x,y FROM shots2 WHERE %s""" % (string)
+
 cur=con.cursor()
 if startdate==None or enddate==None:
-	cur.execute("""SELECT three,made,x,y FROM shots2 WHERE %s""" % (string))
+	cur.execute("""SELECT three,made,x,y FROM shots2 WHERE %s""" % (string+append))
 if startdate!=None and enddate!=None:
 	cur.execute("SELECT three,made,x,y FROM shots2 "+pre_append+" WHERE %s" % (string))
 
@@ -206,12 +205,12 @@ if year=='career':
 	current=datetime.date.today().year
 	if datetime.date.today().month<8:
 		current=year-1
-	with open("../swish2/nba_averages/average_"+current+".csv",'rb') as cfile:
+	with open("../Swish2/averages_nba/average_"+current+".csv",'rb') as cfile:
 		reader=csv.reader(cfile)
 		average_csv=[row for row in reader]
 
 if year!='career':
-	with open("../swish2/nba_averages/average_%s.csv" % (year),'rb') as cfile:
+	with open("../Swish2/averages_nba/average_%s.csv" % (year),'rb') as cfile:
 		reader=csv.reader(cfile)
 		average_csv=[row for row in reader]
 
@@ -221,12 +220,12 @@ if year!='career':
 # if hide=="true" and int(chart_type)==3:
 # 	players="A mystery team!"
 
-results_csv=chart(rows,average_csv,efficiency)
-results_csv=results_csv.tolist()
-results_csv.append(details)
-results_csv.append(players)
-bits.append(len(rows))
-results_csv.append(bits)
+results_csv={}
+results_csv['chart']=chart(rows,average_csv,efficiency)
+results_csv['chart']=results_csv['chart'].tolist()
+results_csv['details']=details
+results_csv['players']=players
+results_csv['rows']=len(rows)
 # results_csv.append(string)
 
 rim_rows = rows[rows[:,2]**2+rows[:,3]**2<80**2]
@@ -250,7 +249,7 @@ if len(three_rows)==0:
 	fg_three = 0
 volume_three = len(three_rows)/len(rows)
 
-results_csv.append([fg_rim,volume_rim,fg_mid,volume_mid,fg_three,volume_three])
+results_csv['regions']=[fg_rim,volume_rim,fg_mid,volume_mid,fg_three,volume_three]
 
 # results=dumps(average_csv)
 results=dumps(results_csv)

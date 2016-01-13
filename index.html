@@ -28,7 +28,7 @@
 
 html {-webkit-font-smoothing: antialiased;}
 h2 {font-family:PT Sans;font-weight:500;font-size:1.2em;line-height:1;color:white;margin:0;padding:0;}
-h3 {font-size:1.2em;margin-top:6;font-family:Raleway;font-weight:700;}
+h3 {font-size:1em;margin-top:4;font-family:Raleway;font-weight:700;}
 a {color:white;}
 a:hover {text-decoration:underline;color:white;}
 select{padding-top:0;padding-bottom:0;margin:0;padding-left:15;}
@@ -87,7 +87,7 @@ body {background-color:#eef0f0;}
 
 <div class='row'>
 	<div class='small-12 columns'>
-		<ul class="banner_subnav">
+		<ul class="banner_subnav" id='navigation'>
 			<li class="is-active" data-tab='players'><a href="#players">Player Shotcharts</a></li>
 			<li data-tab='teams'><a href="#teams">Team Shotcharts</a></li>
 		</ul>
@@ -106,7 +106,7 @@ body {background-color:#eef0f0;}
 
 <div class='row'>
 	<div class='small-12 small-centered columns text-center'>
-		<button class="button left" onchange='kobe_me' href="#"><i class="fa fa-trophy"></i>Kobe me</button><button class="button middle" onclick='load_chart()' href="#"><i class="fa fa-refresh"></i>Chart it</button><button class="button right" href="#"><i class="fa fa-download"></i>Download</button>
+		<button class="button left" onclick='kobe_me' href="#"><i class="fa fa-trophy"></i>Kobe me</button><button class="button middle" onclick='load_chart()' href="#"><i class="fa fa-refresh"></i>Chart it</button><button class="button right" href="#"><i class="fa fa-download" onclick='savepng'></i>Download</button>
 	</div>
 </div>
 
@@ -158,7 +158,7 @@ body {background-color:#eef0f0;}
 		<div class='small-4 columns'>
 			<div class='input-group'>
 				<span class='input-group-label'>Quarter</span>
-				<select id='quarter select'>
+				<select id='quarter_select'>
 					<option value='all'>Complete Game</option>
 					<option value="1">1st quarter</option>
 					<option value="2">2nd quarter</option>
@@ -169,13 +169,13 @@ body {background-color:#eef0f0;}
 			</div>
 		</div>
 
-		<div class='small-4 columns'>
+<!-- 		<div class='small-4 columns'>
 			<div class='input-group input-daterange'>
 				<input type="text" class="input-group-field" id='date1'>
 				<span class='input-group-label noborder'>to</span>
 				<input type="text" class="input-group-field" id='date2'>
 			</div>
-		</div>
+		</div> -->
 
 		<div class='small-4 columns'>
 		</div>
@@ -195,7 +195,7 @@ body {background-color:#eef0f0;}
 		<div class='small-4 columns'>
 			<div class='input-group'>
 				<span class='input-group-label'>Season</span>
-				<select id='year_select'>
+				<select id='tyear_select'>
 				</select>
 			</div>
 		</div>
@@ -203,7 +203,7 @@ body {background-color:#eef0f0;}
 		<div class='small-4 columns'>
 			<div class='input-group'>
 				<span class='input-group-label'>Type</span>
-				<select>
+				<select id='ttype_select'>
 					<option value="regular">Regular Season</option>
 					<option value="playoff">Playoffs</option>
 		 			<option value="allstar">All Star</option>
@@ -232,7 +232,7 @@ body {background-color:#eef0f0;}
 		<div class='small-4 columns'>
 			<div class='input-group'>
 				<span class='input-group-label'>Quarter</span>
-				<select>
+				<select id='tquarter_select'>
 					<option value='all'>Complete Game</option>
 					<option value="1">1st quarter</option>
 					<option value="2">2nd quarter</option>
@@ -243,22 +243,25 @@ body {background-color:#eef0f0;}
 			</div>
 		</div>
 
-		<div class='small-4 columns'>
+<!-- 		<div class='small-4 columns'>
 			<div class='input-group input-daterange'>
 				<input type="text" class="input-group-field" id='date3'>
 				<span class='input-group-label noborder'>to</span>
 				<input type="text" class="input-group-field" id='date4'>
 			</div>
-		</div>
+		</div> -->
 
 		<div class='small-4 columns'>
 			<div class='input-group'>
 				<span class='input-group-label'>Side</span>
-				<select>
+				<select id='tside_select'>
 					<option value="1">Offense</option>
 					<option value="0">Defense</option>
 				</select>
 			</div>
+		</div>
+
+		<div class='small-4 columns'>
 		</div>
 	</div>
 
@@ -325,31 +328,31 @@ $("#year_select").change(function() {
 	$("#player_select").empty()
 
 	$.ajax({
-		url: "nba_menus/players_"+year+".csv",
+		url: "menus_nba/players_"+year+".csv",
 		success: function(response){
 			response=response.split(/\r\n|\n/)
 
 			for (var i=0; i<response.length;i++) {
 				row=response[i].split(',')
-				try{$('#player_select').append(new Option(row[1].replace(/"/g,'')));}catch(err){}
+				try{$('#player_select').append(new Option(row[0].replace(/"/g,'')));}catch(err){}
 			}
 		}
 	});
 })
 
 // update team dropdown
-$("#team_select").change(function() {
+$("#year_select").change(function() {
 	var year=$( "#year_select" ).val()
 	$("#team_select").empty()
 
 	$.ajax({
-		url: "nba_menus/teams_"+year+".csv",
+		url: "menus_nba/teams_"+year+".csv",
 		success: function(response){
 			response=response.split(/\r\n|\n/)
 
 			for (var i=0; i<response.length;i++) {
 				row=response[i].split(',')
-				try{$('#team_select').append(new Option(row[1].replace(/"/g,'')));}catch(err){}
+				try{$('#team_select').append(new Option(row[0].replace(/"/g,'')));}catch(err){}
 			}
 		}
 	});
@@ -365,7 +368,8 @@ function load_chart(){
 		startdate=$("#startdate_select").val()
 		enddate=$("#enddate_select").val()
 
-	    dict={chart_type:'1',player1:player,year:season.toString(),season:type,efficiency:'FG'}
+	    dict={chart_type:'1',player1:player,year:season.toString(),season:type,efficiency:'FG',quarter:quarter}
+	    console.log(dict)
 	    load_pshotnew(dict)
 	}
 
@@ -378,7 +382,7 @@ function load_chart(){
 		enddate=$("#tenddate_select").val()
 		side=$("#tside_select").val()
 
-	    dict={chart_type:'3',player1:player,year:year,season:type,quarter:quarter,startdate:startdate,enddate:enddate,side:side}
+	    dict={chart_type:'3',player1:player,year:year,season:type,quarter:quarter,startdate:startdate,enddate:enddate,side:side,quarter:quarter}
 		console.log(dict)
 	    load_pshotnew(dict)
 	}
@@ -491,20 +495,50 @@ function draw_key() {
 
 window.onload=function() {
 	// initialize season menu
-	var year = m.getUTCFullYear()
-	if(m.getUTCMonth()<7){year=year-1}
-	for (var i=year-2000;i>=0;i--){
-		$('#year_select').append(new Option(2000+i+'-'+(2001+i),2000+i));
-	}
-	$('#year_select').append(new Option('Career', 'Career'));
-	$('#year_select').change();
 
-    dict={chart_type:'1',player1:'Dirk Nowitzki',year:'2011',efficiency:'FG',season:'Regular Season'}
+	$.ajax({
+		url: "menus_nba/year_menu.csv",
+		success: function(response){
+			response=response.split(/\r\n|\n/)
+
+			for (var i=0; i<response.length;i++) {
+				row=response[i].split(',')
+				try{$('#year_select').append(new Option(row[0].replace(/"/g,'')));}catch(err){}
+			}
+			$('#year_select').append(new Option('Career','Career'))
+			$('#year_select').change();
+		}
+	});
+
+    dict={chart_type:'1',player1:'Dirk Nowitzki',year:'2011',efficiency:'FG',season:'Regular Season',quarter:'all'}
     load_pshotnew(dict)
 }
 
+
+// update player dropdown
+$("#year_select").change(function() {
+	var year=$( "#year_select" ).val()
+	$("#player_select").empty()
+
+	$.ajax({
+		url: "menus_nba/players_"+year+".csv",
+		success: function(response){
+			response=response.split(/\r\n|\n/)
+
+			for (var i=0; i<response.length;i++) {
+				row=response[i].split(',')
+				try{$('#player_select').append(new Option(row[0].replace(/"/g,'')));}catch(err){}
+			}
+		}
+	});
+})
+
 function kobe_me() {
 	
+}
+
+function savepng() {
+
 }
 
 function load_pshotnew(dict) {
@@ -515,7 +549,7 @@ function load_pshotnew(dict) {
 	g.animate({opacity: 1},500);
 	console.log(dict)
 	$.ajax({
-	url: "http://www.austinclemens.com/cgi-bin/post_numpy.py",
+	url: "http://www.austinclemens.com/cgi-bin/post_numpy2.py",
 	type: "post",
 	datatype: "html",
 	data:   dict,
@@ -528,8 +562,9 @@ function load_pshotnew(dict) {
 	});
 }
 
-function drawcourt_pshot(shot_data) {
-	head(shot_data[shot_data.length-3],shot_data[shot_data.length-4])
+function drawcourt_pshot(dictionary) {
+	shot_data=dictionary['chart']
+	head(dictionary['players'],dictionary['details'])
 
 	var max=shot_data[0][2]
 	var min=shot_data[shot_data.length-5][2]

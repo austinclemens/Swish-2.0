@@ -398,9 +398,9 @@ def get_game_info(game):
 if local==0:
 	# START EXECUTING FUNCTIONS
 	# Get all shots for all leagues
-	# get_nba_shots()
-	# get_wnba_shots()
-	# get_dleague_shots()
+	get_nba_shots()
+	get_wnba_shots()
+	get_dleague_shots()
 
 	# Get average files for each league as necessary
 	files=os.listdir('/home/austinc/public_html/Swish2/averages_nba/')
@@ -427,44 +427,132 @@ if local==0:
 			except:
 				pass
 
-	con=MySQLdb.connect(user=mysqlparam['user'],passwd=mysqlparam['passwd'],host=mysqlparam['host'],port=mysqlparam['port'],db=mysqlparam['db'])
-	cur=con.cursor()
 
 	# Write all unique player files for populating dropdowns
+	con=MySQLdb.connect(user=mysqlparam['user'],passwd=mysqlparam['passwd'],host=mysqlparam['host'],port=mysqlparam['port'],db=mysqlparam['db'])
+	cur=con.cursor()
 	for year in range(nba_start_year,current_year+1,1):
-		cur.execute("""SELECT DISTINCT year,player FROM shots2 INTO outfile '/home/austinc/public_html/Swish2/menus_nba/players_%s.csv' FIELDS TERMINATED BY ',' ENCLOSED BY '"' LINES TERMINATED BY '\n'""", (year))
+		cur.execute("""SELECT DISTINCT player FROM shots2 WHERE year=%s""" % (year))
+		a=cur.fetchall()
+		print year,a
+		rows=[row[0] for row in a]
+		rows.sort()
+		rows=[[row] for row in rows]
+		if rows:
+			with open("/home/austinc/public_html/Swish2/menus_nba/players_%s.csv" % (year),'w') as f:
+				writer=csv.writer(f)
+				for row in rows[:-1]:
+					writer.writerow(row)
 
+	con=MySQLdb.connect(user=mysqlparam['user'],passwd=mysqlparam['passwd'],host=mysqlparam['host'],port=mysqlparam['port'],db=mysqlparam['db'])
+	cur=con.cursor()
 	for year in range(wnba_start_year,wnba_current_year+1,1):
-		cur.execute("""SELECT DISTINCT year,player FROM shots2_wnba INTO outfile '/home/austinc/public_html/Swish2/menus_wnba/players_%s.csv' FIELDS TERMINATED BY ',' ENCLOSED BY '"' LINES TERMINATED BY '\n'""", (year))
+		cur.execute("""SELECT DISTINCT player FROM shots2_wnba WHERE year=%s""" % (year))
+		a=cur.fetchall()
+		rows=[row[0] for row in a]
+		rows.sort()
+		rows=[[row] for row in rows]
+		if rows:
+			with open("/home/austinc/public_html/Swish2/menus_wnba/players_%s.csv" % (year),'w') as f:
+				writer=csv.writer(f)
+				for row in rows[:-1]:
+					writer.writerow(row)
 
+	con=MySQLdb.connect(user=mysqlparam['user'],passwd=mysqlparam['passwd'],host=mysqlparam['host'],port=mysqlparam['port'],db=mysqlparam['db'])
+	cur=con.cursor()
 	for year in range (d_start_year,current_year+1,1):
-		cur.execute("""SELECT DISTINCT year,player FROM shots2_dleague INTO outfile '/home/austinc/public_html/Swish2/menus_dleague/players_%s.csv' FIELDS TERMINATED BY ',' ENCLOSED BY '"' LINES TERMINATED BY '\n'""", (year))
+		cur.execute("""SELECT DISTINCT player FROM shots2_dleague WHERE year=%s""" % (year))
+		a=cur.fetchall()
+		rows=[row[0] for row in a]
+		rows.sort()
+		rows=[[row] for row in rows]
+		if rows:
+			with open("/home/austinc/public_html/Swish2/menus_dleague/players_%s.csv" % (year),'w') as f:
+				writer=csv.writer(f)
+				for row in rows[:-1]:
+					writer.writerow(row)
 
 	# Write the year dropdowns
-	with open ('/home/austinc/public_html/Swish2/menus_nba/year_menu','w') as csvfile:
-		writer=csv.writer(csvfile)
-		for year in range(nba_start_year,current_year+1,1):
-			writer.writerow(year)
+	con=MySQLdb.connect(user=mysqlparam['user'],passwd=mysqlparam['passwd'],host=mysqlparam['host'],port=mysqlparam['port'],db=mysqlparam['db'])
+	cur=con.cursor()
+	cur.execute("""SELECT DISTINCT year FROM shots2""")
+	a=cur.fetchall()
+	rows=[row[0] for row in a]
+	rows.sort(reverse=True)
+	rows=[[row] for row in rows]
+	with open("/home/austinc/public_html/Swish2/menus_nba/year_menu.csv",'w') as f:
+		writer=csv.writer(f)
+		for row in rows[:-1]:
+			value=str(row[0])+'-'+str(int(row[0])+1)
+			writer.writerow(row[0]+)
 
-	with open ('/home/austinc/public_html/Swish2/menus_wnba/year_menu','w') as csvfile:
-		writer=csv.writer(csvfile)
-		for year in range(wnba_start_year,wnba_current_year+1,1):
-			writer.writerow(year)
+	con=MySQLdb.connect(user=mysqlparam['user'],passwd=mysqlparam['passwd'],host=mysqlparam['host'],port=mysqlparam['port'],db=mysqlparam['db'])
+	cur=con.cursor()
+	cur.execute("""SELECT DISTINCT year FROM shots2_wnba""")
+	a=cur.fetchall()
+	rows=[row[0] for row in a]
+	rows.sort(reverse=True)
+	rows=[[row] for row in rows]
+	with open("/home/austinc/public_html/Swish2/menus_wnba/year_menu.csv",'w') as f:
+		writer=csv.writer(f)
+		for row in rows[:-1]:
+			writer.writerow(row)
 
-	with open ('/home/austinc/public_html/Swish2/menus_dleague/year_menu','w') as csvfile:
-		writer=csv.writer(csvfile)
-		for year in range(d_start_year,current_year+1,1):
-			writer.writerow(year)
+	con=MySQLdb.connect(user=mysqlparam['user'],passwd=mysqlparam['passwd'],host=mysqlparam['host'],port=mysqlparam['port'],db=mysqlparam['db'])
+	cur=con.cursor()
+	cur.execute("""SELECT DISTINCT year FROM shots2_dleague""")
+	a=cur.fetchall()
+	rows=[row[0] for row in a]
+	rows.sort(reverse=True)
+	rows=[[row] for row in rows]
+	with open("/home/austinc/public_html/Swish2/menus_dleague/year_menu.csv",'w') as f:
+		writer=csv.writer(f)
+		for row in rows[:-1]:
+			value=str(row[0])+'-'+str(int(row[0])+1)
+			writer.writerow(row)
 
 	# Write all unique teams for populating dropdowns
 	for year in range(nba_start_year,current_year+1,1):
-		cur.execute("""SELECT DISTINCT year,offense_team FROM shots2 INTO outfile '/home/austinc/public_html/Swish2/menus_nba/teams_%s.csv' FIELDS TERMINATED BY ',' ENCLOSED BY '"' LINES TERMINATED BY '\n'""", (year))
+		con=MySQLdb.connect(user=mysqlparam['user'],passwd=mysqlparam['passwd'],host=mysqlparam['host'],port=mysqlparam['port'],db=mysqlparam['db'])
+		cur=con.cursor()
+		cur.execute("""SELECT DISTINCT offense_team FROM shots2 WHERE year=%s""" % (year))
+		a=cur.fetchall()
+		rows=[row[0] for row in a]
+		rows.sort()
+		rows=[[row] for row in rows]
+		if rows:
+			with open("/home/austinc/public_html/Swish2/menus_nba/teams_%s.csv" % (year),'w') as f:
+				writer=csv.writer(f)
+				for row in rows[:-1]:
+					writer.writerow(row)
 
-	for year in range(wnba_start_year,wnba_current_year+1,1):
-		cur.execute("""SELECT DISTINCT year,offense_team FROM shots2_wnba INTO outfile '/home/austinc/public_html/Swish2/menus_wnba/teams_%s.csv' FIELDS TERMINATED BY ',' ENCLOSED BY '"' LINES TERMINATED BY '\n'""", (year))
+	for year in range(nba_start_year,current_year+1,1):
+		con=MySQLdb.connect(user=mysqlparam['user'],passwd=mysqlparam['passwd'],host=mysqlparam['host'],port=mysqlparam['port'],db=mysqlparam['db'])
+		cur=con.cursor()
+		cur.execute("""SELECT DISTINCT offense_team FROM shots2_wnba WHERE year=%s""" % (year))
+		a=cur.fetchall()
+		rows=[row[0] for row in a]
+		rows.sort()
+		rows=[[row] for row in rows]
+		if rows:
+			with open("/home/austinc/public_html/Swish2/menus_wnba/teams_%s.csv" % (year),'w') as f:
+				writer=csv.writer(f)
+				for row in rows[:-1]:
+					writer.writerow(row)
 
-	for year in range(d_start_year,current_year+1,1):
-		cur.execute("""SELECT DISTINCT year,offense_team FROM shots2_dleague INTO outfile '/home/austinc/public_html/Swish2/menus_dleague/teams_%s.csv' FIELDS TERMINATED BY ',' ENCLOSED BY '"' LINES TERMINATED BY '\n'""", (year))
+	for year in range(nba_start_year,current_year+1,1):
+		con=MySQLdb.connect(user=mysqlparam['user'],passwd=mysqlparam['passwd'],host=mysqlparam['host'],port=mysqlparam['port'],db=mysqlparam['db'])
+		cur=con.cursor()
+		cur.execute("""SELECT DISTINCT offense_team FROM shots2_dleague WHERE year=%s""" % (year))
+		a=cur.fetchall()
+		rows=[row[0] for row in a]
+		rows.sort()
+		rows=[[row] for row in rows]
+		if rows:
+			with open("/home/austinc/public_html/Swish2/menus_dleague/teams_%s.csv" % (year),'w') as f:
+				writer=csv.writer(f)
+				for row in rows[:-1]:
+					writer.writerow(row)
 
 
 # Finished!
