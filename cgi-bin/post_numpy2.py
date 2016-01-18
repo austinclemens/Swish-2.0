@@ -177,8 +177,8 @@ if quarter!='all':
 
 con=MySQLdb.connect(read_default_file="/home/austinc/etc/my.cnf", host='localhost', db='austinc_allshotdata')
 
-print "Content-Type: text/html\n\n"
-print """SELECT three,made,x,y FROM shots2 WHERE %s""" % (string)
+# print "Content-Type: text/html\n\n"
+# print """SELECT three,made,x,y FROM shots2 WHERE %s""" % (string)
 
 cur=con.cursor()
 if startdate==None or enddate==None:
