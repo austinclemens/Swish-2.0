@@ -137,7 +137,6 @@ if int(chart_type)==3:
 	if startdate!=None and enddate!=None:
 		startdate=startdate[6:]+"-"+startdate[0:2]+"-"+startdate[3:5]
 		enddate=enddate[6:]+"-"+enddate[0:2]+"-"+enddate[3:5]
-		pre_append="INNER JOIN general_game ON general_game.gameid=shots.gameid"
 		post_append=" AND date>='%s' AND date<='%s'" % (startdate,enddate)
 		details=details+", between %s and %s" % (startdate,enddate)
 
