@@ -3,11 +3,9 @@
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/snap.svg/0.4.1/snap.svg-min.js"></script> 
 	<script src="http://code.jquery.com/jquery-2.1.1.min.js"></script>
 	<script type="text/javascript" charset="utf-8" src="lib/foundation.min.js"></script>
-	<script type="text/javascript" charset="utf-8" src="lib/bootstrap-datepicker.js"></script>
 	
 	<link rel="stylesheet" type="text/css" media="all" href="css/foundation.min.css">
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
-	<link rel="stylesheet" type="text/css" id="bsdp-css" href="css/datepicker3.css">
 
 	<title>Swish 2.0: NBA shot charts by Austin Clemens</title>
 	<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
@@ -22,6 +20,9 @@
 </head>
 
 <style>
+/*<script type="text/javascript" charset="utf-8" src="lib/bootstrap-datepicker.js"></script>*/
+/*<link rel="stylesheet" type="text/css" id="bsdp-css" href="css/datepicker3.css">*/
+
 @import url(https://fonts.googleapis.com/css?family=Raleway:400,500,600);
 @import url(https://fonts.googleapis.com/css?family=Abel:400,700);
 @import url(https://fonts.googleapis.com/css?family=PT+Sans:400,700);
@@ -31,7 +32,8 @@ h2 {font-family:PT Sans;font-weight:500;font-size:1.2em;line-height:1;color:whit
 h3 {font-size:1em;margin-top:4;font-family:Raleway;font-weight:700;}
 a {color:white;}
 a:hover {text-decoration:underline;color:white;}
-select{padding-top:0;padding-bottom:0;margin:0;padding-left:15;}
+select{padding-top:0;padding-bottom:0;margin:0;padding-left:15;white-space:pre}
+option{white-space:pre}
 body {background-color:#eef0f0;}
 
 #spinner {position:absolute}
@@ -52,7 +54,7 @@ body {background-color:#eef0f0;}
 .button {background-color:#b27300;border-radius:2px;margin-top:10px;}
 .button:hover {background-color:#705201;}
 .fa {margin-right:6px;}
-.input-group-label {padding6;text-align:left;}
+.input-group-label {padding:6;text-align:left}
 .input-group-field {border-radius:0px;padding-top:0;padding-bottom:0;margin:0;}
 .datepicker table tr td, .datepicker table tr th {border-radius:0px;}
 .noborder {border-left:0;border-right:0;}
@@ -66,8 +68,12 @@ body {background-color:#eef0f0;}
 .top {position:absolute;padding-left:20em;padding-top:1.4em;}
 .fa-twitter:hover {color:#7EB3CD;}
 .current {text-decoration:underline;}
-.navigation {font-family:PT Sans;font-weight:500;font-size:1.2em;line-height:1;color:white;margin:0;padding-top:3em;margin-top:3em;}
-.pipe {padding-left:10px;padding-right:10px;font-family:PT Sans;font-weight:500;font-size:1.2em;line-height:1;color:white;;padding-top:3em;margin-top:3em}
+.twit {font-family:'PT Sans';font-weight:500;font-size:1.2em;line-height:1;color:white;margin:0;padding-top:3em;margin-top:3em;}
+.navigation {font-family:'PT Sans';font-weight:500;font-size:1.2em;line-height:1;color:white;margin:0;padding-top:3em;margin-top:3em;}
+.navigation:hover {text-decoration:underline;color:white;}
+.active{text-decoration:underline;color:black;}
+.active:hover {text-decoration:underline;color:black;}
+.pipe {padding-left:10px;padding-right:10px;font-family:'PT Sans';font-weight:500;font-size:1.2em;line-height:1;color:white;padding-top:3em;margin-top:3em}
 </style>
 
 <body>
@@ -77,10 +83,10 @@ body {background-color:#eef0f0;}
 		<div class='small-12 columns'>
 			<span class='head'>Swish 2.0</span>
 			<div class='top'>
-				<span class='navigation'>NBA</span><span class='pipe'>|</span>
-				<span class='navigation'>WNBA</span><span class='pipe'>|</span>
-				<span class='navigation'>D-League</span><span class='pipe'>|</span>
-				<span class='navigation'><i class="fa fa-twitter fa-inverse"></i>austinclemens2</span>
+				<span class='navigation active' onclick="chleague(1)">NBA</span><span class='pipe'>|</span>
+				<span class='navigation' onclick="chleague(2)">WNBA</span><span class='pipe'>|</span>
+				<span class='navigation' onclick="chleague(3)">D-League</span><span class='pipe'>|</span>
+				<span class='twit'><a href='https://twitter.com/AustinClemens2'><i class="fa fa-twitter fa-inverse"></i>austinclemens2</a></span>
 			</div>
 	</div>
 </header>
@@ -96,7 +102,12 @@ body {background-color:#eef0f0;}
 
 <div class='row'>
 	<div class='small-12 columns text-center'>
-		<svg id="court" class='maxwidth' viewBox='-20 17 940 667'></svg>
+		<svg id="court" class='maxwidth' viewBox='-20 17 940 667'>
+			<defs>
+
+
+			</defs>
+		</svg>
 	</div>
 </div>
 <div class='row'>
@@ -291,6 +302,7 @@ body {background-color:#eef0f0;}
 </body>
 
 <script defer>
+var league=1
 var active_tab='players'
 
 // handle subnav tabs
@@ -305,31 +317,48 @@ $(document).ready(function(){
 	})
 })
 
-// initialize dates
-var m = new Date();
-if (m.getUTCDate()>10){day=m.getUTCDate()}else{day='0'+m.getUTCDate()}
-var dateString = day +"/"+("0" + (m.getUTCMonth()+1)).slice(-2) +"/"+("0" + m.getUTCFullYear()).slice(-4)
-
-$('#date1').attr('value',dateString)
-$('#date2').attr('value',dateString)
-$('#date3').attr('value',dateString)
-$('#date4').attr('value',dateString)
-
-$('.input-daterange input').each(function() {
-    $(this).datepicker({
-		format: "mm/dd/yyyy",
-		todayHighlight: true
-    });
+// handle league selection
+$('.navigation').click(function(){
+	$('.navigation').removeClass('active')
+	$(this).toggleClass('active');
 });
+
+function chleague(num){
+	league=num
+	$("#year_select").trigger('change')
+}
+
+// initialize dates
+// var m = new Date();
+// if (m.getUTCDate()>10){day=m.getUTCDate()}else{day='0'+m.getUTCDate()}
+// var dateString = day +"/"+("0" + (m.getUTCMonth()+1)).slice(-2) +"/"+("0" + m.getUTCFullYear()).slice(-4)
+
+// $('#date1').attr('value',dateString)
+// $('#date2').attr('value',dateString)
+// $('#date3').attr('value',dateString)
+// $('#date4').attr('value',dateString)
+
+// $('.input-daterange input').each(function() {
+//     $(this).datepicker({
+// 		format: "mm/dd/yyyy",
+// 		todayHighlight: true
+//     });
+// });
 
 // update player dropdown
 $("#year_select").change(function() {
 	var year=$( "#year_select" ).val()
+	var year=year.split('-')[0]
 	$("#player_select").empty()
 
+	if(league==1){url="menus_nba/players_"+year+".csv"}
+	if(league==2){url="menus_wnba/players_"+year+".csv"}
+	if(league==3){url="menus_dleague/players_"+year+".csv"}
+
 	$.ajax({
-		url: "menus_nba/players_"+year+".csv",
+		url: url,
 		success: function(response){
+			response=response.trim()
 			response=response.split(/\r\n|\n/)
 
 			for (var i=0; i<response.length;i++) {
@@ -343,10 +372,15 @@ $("#year_select").change(function() {
 // update team dropdown
 $("#year_select").change(function() {
 	var year=$( "#year_select" ).val()
+	var year=year.split('-')[0]
 	$("#team_select").empty()
 
+	if(league==1){url="menus_nba/teams_"+year+".csv"}
+	if(league==2){url="menus_wnba/teams_"+year+".csv"}
+	if(league==3){url="menus_dleague/teams_"+year+".csv"}
+
 	$.ajax({
-		url: "menus_nba/teams_"+year+".csv",
+		url: url,
 		success: function(response){
 			response=response.split(/\r\n|\n/)
 
@@ -361,29 +395,33 @@ $("#year_select").change(function() {
 // chart loading
 function load_chart(){
 	if (active_tab=='players'){
-		season=$("#year_select").val()
-		type=$("#type_select").val()
-		player=$("#player_select").val()
-		quarter=$("#quarter_select").val()
-		startdate=$("#startdate_select").val()
-		enddate=$("#enddate_select").val()
+		var season=$("#year_select").val()
+		var season=season.split('-')[0]
+		var type=$("#type_select").val()
+		var player=$("#player_select").val()
+		var quarter=$("#quarter_select").val()
+		var startdate=$("#startdate_select").val()
+		var enddate=$("#enddate_select").val()
 
-	    dict={chart_type:'1',player1:player,year:season.toString(),season:type,efficiency:'FG',quarter:quarter}
-	    console.log(dict)
+		if(league==2){player=' '+player}
+
+	    dict={chart_type:'1',player1:player,year:season.toString(),season:type,efficiency:'FG',quarter:quarter,league:league}
+	    // console.log(dict)
 	    load_pshotnew(dict)
 	}
 
 	if (active_tab=='teams'){
-		season=$("#tyear_select").val()
-		type=$("#ttype_select").val()
-		player=$("#team_select").val()
-		quarter=$("#tquarter_select").val()
-		startdate=$("#tstartdate_select").val()
-		enddate=$("#tenddate_select").val()
-		side=$("#tside_select").val()
+		var season=$("#tyear_select").val()
+		var season=season.split('-')[0]
+		var type=$("#ttype_select").val()
+		var player=$("#team_select").val()
+		var quarter=$("#tquarter_select").val()
+		var startdate=$("#tstartdate_select").val()
+		var enddate=$("#tenddate_select").val()
+		var side=$("#tside_select").val()
 
-	    dict={chart_type:'3',player1:player,year:year,season:type,quarter:quarter,startdate:startdate,enddate:enddate,side:side,quarter:quarter}
-		console.log(dict)
+	    dict={chart_type:'3',player1:player,year:year,season:type,quarter:quarter,startdate:startdate,enddate:enddate,side:side,quarter:quarter,league:league}
+		// console.log(dict)
 	    load_pshotnew(dict)
 	}
 }
@@ -395,59 +433,163 @@ tag_court()
 draw_key()
 // fake_details()
 
-function draw_base() {
+function draw_base(year) {
 	if (typeof courtlines!="undefined") {
 		courtlines.clear()
 	}
 
-	// lines and rects
-	var graph_box=court.rect(-30,-20,1100,1000).attr({fill:'#eef0f0'})
-	var credit_box=court.rect(-30,664,1100,20).attr({fill:'#606060'})
-	// var details_box=court.rect(0,30,900,20).attr({fill:'#606060'})
-	var key_outer_left=court.line(306,50,306,392).attr({'shape-rendering':'crispEdges'})
-	var key_outer_right=court.line(594,50,594,392).attr({'shape-rendering':'crispEdges'})
-	var key_inner_left=court.line(342,50,342,392).attr({'shape-rendering':'crispEdges'})
-	var key_inner_right=court.line(558,50,558,392).attr({'shape-rendering':'crispEdges'})
-	var key_top=court.line(306,392,594,392).attr({'shape-rendering':'crispEdges'})
-	var baseline_tick_left=court.line(252,50,252,59).attr({'shape-rendering':'crispEdges'})
-	var baseline_tick_right=court.line(648,50,648,59).attr({'shape-rendering':'crispEdges'})
-	var ft_tick_left=court.line(360,284,369,284).attr({'shape-rendering':'crispEdges'})
-	var ft_tick_right=court.line(540,284,531,284).attr({'shape-rendering':'crispEdges'})
-	var backboard=court.line(396,120.2,504,120.2).attr({'shape-rendering':'crispEdges'})
-	var nocharge_tick_left=court.line(378,125.6,378,148.1).attr({'shape-rendering':'crispEdges'})
-	var nocharge_tick_right=court.line(522,125.6,522,148.1).attr({'shape-rendering':'crispEdges'})
-	var key_left_tick1=court.line(306,176,292.5,176).attr({'shape-rendering':'crispEdges'})
-	var key_right_tick1=court.line(594,176,607.5,176).attr({'shape-rendering':'crispEdges'})
-	var key_left_tick2=court.line(306,194,292.5,194).attr({'shape-rendering':'crispEdges'})
-	var key_right_tick2=court.line(594,194,607.5,194).attr({'shape-rendering':'crispEdges'})
-	var key_left_tick3=court.line(306,248,292.5,248).attr({'shape-rendering':'crispEdges'})
-	var key_right_tick3=court.line(594,248,607.5,248).attr({'shape-rendering':'crispEdges'})
-	var key_left_tick4=court.line(306,302,292.5,302).attr({'shape-rendering':'crispEdges'})
-	var key_right_tick4=court.line(594,302,607.5,302).attr({'shape-rendering':'crispEdges'})
-	var left_threeline=court.line(54,50,54,306).attr({'shape-rendering':'crispEdges'})
-	var right_threeline=court.line(846,50,846,306).attr({'shape-rendering':'crispEdges'})
-	var baseline=court.line(0,50,900,50).attr({'shape-rendering':'crispEdges','stroke-width':2})
+	if (league!=2){
+		// lines and rects
+		var graph_box=court.rect(-30,-20,1100,1000).attr({fill:'#eef0f0'})
+		var credit_box=court.rect(-30,664,1100,20).attr({fill:'#606060'})
+		// var details_box=court.rect(0,30,900,20).attr({fill:'#606060'})
+		var key_outer_left=court.line(306,50,306,392).attr({'shape-rendering':'crispEdges'})
+		var key_outer_right=court.line(594,50,594,392).attr({'shape-rendering':'crispEdges'})
+		var key_inner_left=court.line(342,50,342,392).attr({'shape-rendering':'crispEdges'})
+		var key_inner_right=court.line(558,50,558,392).attr({'shape-rendering':'crispEdges'})
+		var key_top=court.line(306,392,594,392).attr({'shape-rendering':'crispEdges'})
+		var baseline_tick_left=court.line(252,50,252,59).attr({'shape-rendering':'crispEdges'})
+		var baseline_tick_right=court.line(648,50,648,59).attr({'shape-rendering':'crispEdges'})
+		var ft_tick_left=court.line(360,284,369,284).attr({'shape-rendering':'crispEdges'})
+		var ft_tick_right=court.line(540,284,531,284).attr({'shape-rendering':'crispEdges'})
+		var backboard=court.line(396,120.2,504,120.2).attr({'shape-rendering':'crispEdges'})
+		var nocharge_tick_left=court.line(378,125.6,378,148.1).attr({'shape-rendering':'crispEdges'})
+		var nocharge_tick_right=court.line(522,125.6,522,148.1).attr({'shape-rendering':'crispEdges'})
+		var key_left_tick1=court.line(306,176,292.5,176).attr({'shape-rendering':'crispEdges'})
+		var key_right_tick1=court.line(594,176,607.5,176).attr({'shape-rendering':'crispEdges'})
+		var key_left_tick2=court.line(306,194,292.5,194).attr({'shape-rendering':'crispEdges'})
+		var key_right_tick2=court.line(594,194,607.5,194).attr({'shape-rendering':'crispEdges'})
+		var key_left_tick3=court.line(306,248,292.5,248).attr({'shape-rendering':'crispEdges'})
+		var key_right_tick3=court.line(594,248,607.5,248).attr({'shape-rendering':'crispEdges'})
+		var key_left_tick4=court.line(306,302,292.5,302).attr({'shape-rendering':'crispEdges'})
+		var key_right_tick4=court.line(594,302,607.5,302).attr({'shape-rendering':'crispEdges'})
+		var left_threeline=court.line(54,50,54,306).attr({'shape-rendering':'crispEdges'})
+		var right_threeline=court.line(846,50,846,306).attr({'shape-rendering':'crispEdges'})
+		var baseline=court.line(0,50,900,50).attr({'shape-rendering':'crispEdges','stroke-width':2})
 
-	// arcs
-	var three_arc=court.path("M54,305A427.5,427.5 1 0,0 846,305")
-	var inner_ft_circle=court.path("M342,392A108,108 1 0,1 558,392").attr({ "stroke-dasharray" : [22.5,22.5]});
-	var outer_ft_circle=court.path("M342,392A108,108 1 0,0 558,392")
-	var hoop=court.circle(450,134.6,13.5)
-	var nocharge=court.path("M378,148.1A72,72 1 0,0 522,148.1")
+		// arcs
+		var three_arc=court.path("M54,305A427.5,427.5 1 0,0 846,305")
+		var inner_ft_circle=court.path("M342,392A108,108 1 0,1 558,392").attr({ "stroke-dasharray" : [22.5,22.5]});
+		var outer_ft_circle=court.path("M342,392A108,108 1 0,0 558,392")
+		var hoop=court.circle(450,134.6,13.5)
+		var nocharge=court.path("M378,148.1A72,72 1 0,0 522,148.1")
 
-	//zones
-	left3zone=court.line(0,306,50,306).attr({'stroke-dasharray':[6,6],'stroke-width':1,stroke:'#000',opacity:.1,'shape-rendering':'crispEdges'})
-	right3zone=court.line(846,306,896,306).attr({'stroke-dasharray':[6,6],'stroke-width':1,stroke:'#000',opacity:.1,'shape-rendering':'crispEdges'})
-	longleftzone=court.line(50,306,306,306).attr({'stroke-dasharray':[6,6],'stroke-width':1,stroke:'#000',opacity:.1,'shape-rendering':'crispEdges'})
-	longrightzone=court.line(594,306,846,306).attr({'stroke-dasharray':[6,6],'stroke-width':1,stroke:'#000',opacity:.1,'shape-rendering':'crispEdges'})
-	longcenterzone1=court.line(306,392,306,545).attr({'stroke-dasharray':[6,6],'stroke-width':1,stroke:'#000',opacity:.1,'shape-rendering':'crispEdges'})
-	longcenterzone1=court.line(594,392,594,545).attr({'stroke-dasharray':[6,6],'stroke-width':1,stroke:'#000',opacity:.1,'shape-rendering':'crispEdges'})
-	leftarc=court.line(246,522,186,664).attr({'stroke-dasharray':[6,6],'stroke-width':1,stroke:'#000',opacity:.1,'shape-rendering':'crispEdges'})
-	rightarc=court.line(654,522,714,664).attr({'stroke-dasharray':[6,6],'stroke-width':1,stroke:'#000',opacity:.1,'shape-rendering':'crispEdges'})
+		//zones
+		left3zone=court.line(0,306,50,306).attr({'stroke-dasharray':[6,6],'stroke-width':1,stroke:'#000',opacity:.1,'shape-rendering':'crispEdges'})
+		right3zone=court.line(846,306,896,306).attr({'stroke-dasharray':[6,6],'stroke-width':1,stroke:'#000',opacity:.1,'shape-rendering':'crispEdges'})
+		longleftzone=court.line(50,306,306,306).attr({'stroke-dasharray':[6,6],'stroke-width':1,stroke:'#000',opacity:.1,'shape-rendering':'crispEdges'})
+		longrightzone=court.line(594,306,846,306).attr({'stroke-dasharray':[6,6],'stroke-width':1,stroke:'#000',opacity:.1,'shape-rendering':'crispEdges'})
+		longcenterzone1=court.line(306,392,306,545).attr({'stroke-dasharray':[6,6],'stroke-width':1,stroke:'#000',opacity:.1,'shape-rendering':'crispEdges'})
+		longcenterzone1=court.line(594,392,594,545).attr({'stroke-dasharray':[6,6],'stroke-width':1,stroke:'#000',opacity:.1,'shape-rendering':'crispEdges'})
+		leftarc=court.line(246,522,186,664).attr({'stroke-dasharray':[6,6],'stroke-width':1,stroke:'#000',opacity:.1,'shape-rendering':'crispEdges'})
+		rightarc=court.line(654,522,714,664).attr({'stroke-dasharray':[6,6],'stroke-width':1,stroke:'#000',opacity:.1,'shape-rendering':'crispEdges'})
 
-	// grouping and applying attributes
-	courtlines=court.group(key_outer_left,key_outer_right,key_inner_left,key_inner_right,key_top,baseline_tick_left,baseline_tick_right,ft_tick_left,ft_tick_right,backboard,nocharge_tick_left,nocharge_tick_right,key_left_tick1,key_left_tick2,key_left_tick3,key_left_tick4,key_right_tick1,key_right_tick2,key_right_tick3,key_right_tick4,left_threeline,right_threeline,three_arc,inner_ft_circle,outer_ft_circle,hoop,nocharge,baseline)
-	courtlines.attr({stroke: "#000",fill: "none",strokeWidth:1})
+		// grouping and applying attributes
+		courtlines=court.group(key_outer_left,key_outer_right,key_inner_left,key_inner_right,key_top,baseline_tick_left,baseline_tick_right,ft_tick_left,ft_tick_right,backboard,nocharge_tick_left,nocharge_tick_right,key_left_tick1,key_left_tick2,key_left_tick3,key_left_tick4,key_right_tick1,key_right_tick2,key_right_tick3,key_right_tick4,left_threeline,right_threeline,three_arc,inner_ft_circle,outer_ft_circle,hoop,nocharge,baseline)
+		courtlines.attr({stroke: "#000",fill: "none",strokeWidth:1})
+	}
+
+	if(league==2 && parseInt(year)<2013){
+		// lines and rects
+		var graph_box=court.rect(-30,-20,1100,1000).attr({fill:'#eef0f0'})
+		var credit_box=court.rect(-30,664,1100,20).attr({fill:'#606060'})
+		// var details_box=court.rect(0,30,900,20).attr({fill:'#606060'})
+		var key_outer_left=court.line(306,50,306,392).attr({'shape-rendering':'crispEdges'})
+		var key_outer_right=court.line(594,50,594,392).attr({'shape-rendering':'crispEdges'})
+		var key_inner_left=court.line(342,50,342,392).attr({'shape-rendering':'crispEdges'})
+		var key_inner_right=court.line(558,50,558,392).attr({'shape-rendering':'crispEdges'})
+		var key_top=court.line(306,392,594,392).attr({'shape-rendering':'crispEdges'})
+		var baseline_tick_left=court.line(252,50,252,59).attr({'shape-rendering':'crispEdges'})
+		var baseline_tick_right=court.line(648,50,648,59).attr({'shape-rendering':'crispEdges'})
+		var ft_tick_left=court.line(360,284,369,284).attr({'shape-rendering':'crispEdges'})
+		var ft_tick_right=court.line(540,284,531,284).attr({'shape-rendering':'crispEdges'})
+		var backboard=court.line(396,120.2,504,120.2).attr({'shape-rendering':'crispEdges'})
+		var nocharge_tick_left=court.line(378,125.6,378,148.1).attr({'shape-rendering':'crispEdges'})
+		var nocharge_tick_right=court.line(522,125.6,522,148.1).attr({'shape-rendering':'crispEdges'})
+		var key_left_tick1=court.line(306,176,292.5,176).attr({'shape-rendering':'crispEdges'})
+		var key_right_tick1=court.line(594,176,607.5,176).attr({'shape-rendering':'crispEdges'})
+		var key_left_tick2=court.line(306,194,292.5,194).attr({'shape-rendering':'crispEdges'})
+		var key_right_tick2=court.line(594,194,607.5,194).attr({'shape-rendering':'crispEdges'})
+		var key_left_tick3=court.line(306,248,292.5,248).attr({'shape-rendering':'crispEdges'})
+		var key_right_tick3=court.line(594,248,607.5,248).attr({'shape-rendering':'crispEdges'})
+		var key_left_tick4=court.line(306,302,292.5,302).attr({'shape-rendering':'crispEdges'})
+		var key_right_tick4=court.line(594,302,607.5,302).attr({'shape-rendering':'crispEdges'})
+		var left_threeline=court.line(81,50,81,144.5).attr({'shape-rendering':'crispEdges'})
+		var right_threeline=court.line(819,50,819,144.5).attr({'shape-rendering':'crispEdges'})
+		var baseline=court.line(0,50,900,50).attr({'shape-rendering':'crispEdges','stroke-width':2})
+
+		// arcs
+		var three_arc=court.path("M81,144.5A1,1 1 0,0 819,144.5")
+		var inner_ft_circle=court.path("M342,392A108,108 1 0,1 558,392").attr({ "stroke-dasharray" : [22.5,22.5]});
+		var outer_ft_circle=court.path("M342,392A108,108 1 0,0 558,392")
+		var hoop=court.circle(450,134.6,13.5)
+		var nocharge=court.path("M378,148.1A72,72 1 0,0 522,148.1")
+
+		//zones
+		left3zone=court.line(0,306,50,306).attr({'stroke-dasharray':[6,6],'stroke-width':1,stroke:'#000',opacity:.1,'shape-rendering':'crispEdges'})
+		right3zone=court.line(846,306,896,306).attr({'stroke-dasharray':[6,6],'stroke-width':1,stroke:'#000',opacity:.1,'shape-rendering':'crispEdges'})
+		longleftzone=court.line(50,306,306,306).attr({'stroke-dasharray':[6,6],'stroke-width':1,stroke:'#000',opacity:.1,'shape-rendering':'crispEdges'})
+		longrightzone=court.line(594,306,846,306).attr({'stroke-dasharray':[6,6],'stroke-width':1,stroke:'#000',opacity:.1,'shape-rendering':'crispEdges'})
+		longcenterzone1=court.line(306,392,306,545).attr({'stroke-dasharray':[6,6],'stroke-width':1,stroke:'#000',opacity:.1,'shape-rendering':'crispEdges'})
+		longcenterzone1=court.line(594,392,594,545).attr({'stroke-dasharray':[6,6],'stroke-width':1,stroke:'#000',opacity:.1,'shape-rendering':'crispEdges'})
+		leftarc=court.line(246,522,186,664).attr({'stroke-dasharray':[6,6],'stroke-width':1,stroke:'#000',opacity:.1,'shape-rendering':'crispEdges'})
+		rightarc=court.line(654,522,714,664).attr({'stroke-dasharray':[6,6],'stroke-width':1,stroke:'#000',opacity:.1,'shape-rendering':'crispEdges'})
+
+		// grouping and applying attributes
+		courtlines=court.group(key_outer_left,key_outer_right,key_inner_left,key_inner_right,key_top,baseline_tick_left,baseline_tick_right,ft_tick_left,ft_tick_right,backboard,nocharge_tick_left,nocharge_tick_right,key_left_tick1,key_left_tick2,key_left_tick3,key_left_tick4,key_right_tick1,key_right_tick2,key_right_tick3,key_right_tick4,left_threeline,right_threeline,three_arc,inner_ft_circle,outer_ft_circle,hoop,nocharge,baseline)
+		courtlines.attr({stroke: "#000",fill: "none",strokeWidth:1})	
+	}
+
+	if(league==2 && parseInt(year)>2012){
+		// lines and rects
+		var graph_box=court.rect(-30,-20,1100,1000).attr({fill:'#eef0f0'})
+		var credit_box=court.rect(-30,664,1100,20).attr({fill:'#606060'})
+		// var details_box=court.rect(0,30,900,20).attr({fill:'#606060'})
+		var key_outer_left=court.line(306,50,306,392).attr({'shape-rendering':'crispEdges'})
+		var key_outer_right=court.line(594,50,594,392).attr({'shape-rendering':'crispEdges'})
+		var key_inner_left=court.line(342,50,342,392).attr({'shape-rendering':'crispEdges'})
+		var key_inner_right=court.line(558,50,558,392).attr({'shape-rendering':'crispEdges'})
+		var key_top=court.line(306,392,594,392).attr({'shape-rendering':'crispEdges'})
+		var baseline_tick_left=court.line(252,50,252,59).attr({'shape-rendering':'crispEdges'})
+		var baseline_tick_right=court.line(648,50,648,59).attr({'shape-rendering':'crispEdges'})
+		var ft_tick_left=court.line(360,284,369,284).attr({'shape-rendering':'crispEdges'})
+		var ft_tick_right=court.line(540,284,531,284).attr({'shape-rendering':'crispEdges'})
+		var backboard=court.line(396,120.2,504,120.2).attr({'shape-rendering':'crispEdges'})
+		var nocharge_tick_left=court.line(378,125.6,378,148.1).attr({'shape-rendering':'crispEdges'})
+		var nocharge_tick_right=court.line(522,125.6,522,148.1).attr({'shape-rendering':'crispEdges'})
+		var key_left_tick1=court.line(306,176,292.5,176).attr({'shape-rendering':'crispEdges'})
+		var key_right_tick1=court.line(594,176,607.5,176).attr({'shape-rendering':'crispEdges'})
+		var key_left_tick2=court.line(306,194,292.5,194).attr({'shape-rendering':'crispEdges'})
+		var key_right_tick2=court.line(594,194,607.5,194).attr({'shape-rendering':'crispEdges'})
+		var key_left_tick3=court.line(306,248,292.5,248).attr({'shape-rendering':'crispEdges'})
+		var key_right_tick3=court.line(594,248,607.5,248).attr({'shape-rendering':'crispEdges'})
+		var key_left_tick4=court.line(306,302,292.5,302).attr({'shape-rendering':'crispEdges'})
+		var key_right_tick4=court.line(594,302,607.5,302).attr({'shape-rendering':'crispEdges'})
+		var left_threeline=court.line(54,50,54,144.5).attr({'shape-rendering':'crispEdges'})
+		var right_threeline=court.line(846,50,846,144.5).attr({'shape-rendering':'crispEdges'})
+		var baseline=court.line(0,50,900,50).attr({'shape-rendering':'crispEdges','stroke-width':2})
+
+		// arcs
+		var three_arc=court.path("M54,144.5A396.625,396.625 1 0,0 846,144.5")
+		var inner_ft_circle=court.path("M342,392A108,108 1 0,1 558,392").attr({ "stroke-dasharray" : [22.5,22.5]});
+		var outer_ft_circle=court.path("M342,392A108,108 1 0,0 558,392")
+		var hoop=court.circle(450,134.6,13.5)
+		var nocharge=court.path("M378,148.1A72,72 1 0,0 522,148.1")
+
+		//zones
+		left3zone=court.line(0,306,50,306).attr({'stroke-dasharray':[6,6],'stroke-width':1,stroke:'#000',opacity:.1,'shape-rendering':'crispEdges'})
+		right3zone=court.line(846,306,896,306).attr({'stroke-dasharray':[6,6],'stroke-width':1,stroke:'#000',opacity:.1,'shape-rendering':'crispEdges'})
+		longleftzone=court.line(50,306,306,306).attr({'stroke-dasharray':[6,6],'stroke-width':1,stroke:'#000',opacity:.1,'shape-rendering':'crispEdges'})
+		longrightzone=court.line(594,306,846,306).attr({'stroke-dasharray':[6,6],'stroke-width':1,stroke:'#000',opacity:.1,'shape-rendering':'crispEdges'})
+		longcenterzone1=court.line(306,392,306,545).attr({'stroke-dasharray':[6,6],'stroke-width':1,stroke:'#000',opacity:.1,'shape-rendering':'crispEdges'})
+		longcenterzone1=court.line(594,392,594,545).attr({'stroke-dasharray':[6,6],'stroke-width':1,stroke:'#000',opacity:.1,'shape-rendering':'crispEdges'})
+		leftarc=court.line(246,522,186,664).attr({'stroke-dasharray':[6,6],'stroke-width':1,stroke:'#000',opacity:.1,'shape-rendering':'crispEdges'})
+		rightarc=court.line(654,522,714,664).attr({'stroke-dasharray':[6,6],'stroke-width':1,stroke:'#000',opacity:.1,'shape-rendering':'crispEdges'})
+
+		// grouping and applying attributes
+		courtlines=court.group(key_outer_left,key_outer_right,key_inner_left,key_inner_right,key_top,baseline_tick_left,baseline_tick_right,ft_tick_left,ft_tick_right,backboard,nocharge_tick_left,nocharge_tick_right,key_left_tick1,key_left_tick2,key_left_tick3,key_left_tick4,key_right_tick1,key_right_tick2,key_right_tick3,key_right_tick4,left_threeline,right_threeline,three_arc,inner_ft_circle,outer_ft_circle,hoop,nocharge,baseline)
+		courtlines.attr({stroke: "#000",fill: "none",strokeWidth:1})	
+	}
 
 	// spinner
 	Snap.load("spin.svg", function (f) {
@@ -462,35 +604,44 @@ function tag_court() {
 	var twitlink=court.text(910,678,"@AustinClemens2").attr({fontFamily:"Abel",fontSize:13,fill:'white','font-weight':500,'text-anchor':'end',cursor:'pointer'})
 	coords=twitlink.getBBox()
 	twitlink.click(function() {window.location="https://twitter.com/austinclemens2"})
-	var bird=court.image("Twitter_logo_sm.png",coords.x,667.5,16,13)
-
+	var bird=court.image("Twitter_logo_sm.png",coords.x-20,667.5,16,13)
 	court.text(-10,678,"www.austinclemens.com/shotcharts").attr({fontFamily:"Abel",fontSize:13,fill:'white','font-weight':500})
 }
 
 function head(name,details) {
-	var name=court.text(0,47,name).attr({id:'temp',fontFamily:"Raleway",fontSize:33,fill:"#505050",'text-anchor':'start','font-weight':600})
+	var name=court.text(0,46,name).attr({id:'temp',fontFamily:"Raleway",fontSize:33,fill:"#505050",'text-anchor':'start','font-weight':600})
 	coords=name.getBBox()
-	court.text(coords.x2+15,47,details).attr({id:'temp',fontFamily:"Abel",fontSize:15,fill:'black','text-anchor':'start'})
+	court.text(coords.x2+15,46,details).attr({id:'temp',fontFamily:"Abel",fontSize:15,fill:'black','text-anchor':'start'})
 }
 
-function draw_key() {
-	// color key
-	var grad=court.gradient('l()'+choosecolor(-.1)+'-'+choosecolor(-.07)+'-'+choosecolor(-.04)+'-'+choosecolor(-.01)+'-'+'#ffffff'+'-'+choosecolor(.01)+'-'+choosecolor(.04)+'-'+choosecolor(.07)+'-'+choosecolor(.1))
-	var keybox=court.rect(748,640,128,18,2).attr({fill:grad,'shape-rendering':'crispEdges'})
-	var keytext2=court.text(743,648,"Below").attr({fontFamily:"Abel",fontSize:11,'text-anchor':'end'})
-	var keytext2=court.text(743,658,"Average").attr({fontFamily:"Abel",fontSize:11,'text-anchor':'end'})
-	var keytext3=court.text(881,648,"Above").attr({fontFamily:"Abel",fontSize:11,'text-anchor':'start'})
-	var keytext3=court.text(881,658,"Average").attr({fontFamily:"Abel",fontSize:11,'text-anchor':'start'})
-	var divider=court.line(812,640,812,658).attr({'shape-rendering':'crispEdges',stroke:'black','stroke-width':1,opacity:.3})
+function draw_key(under100) {
 
-	// size key
-	var keybox2_1=court.rect(17, 645, 8, 8, 2).attr({fill:choosecolor(.04),strokeWidth:0,'shape-rendering':'crispEdges'})
-	var keybox2_2=court.rect(29, 642, 13, 13, 2).attr({fill:choosecolor(.04),strokeWidth:0,'shape-rendering':'crispEdges'})
-	var keybox2_3=court.rect(46, 639, 18, 18, 2).attr({fill:choosecolor(.04),strokeWidth:0,'shape-rendering':'crispEdges'})
-	var keytext2=court.text(12,648,"Few").attr({fontFamily:"Abel",fontSize:11,'text-anchor':'end'})
-	var keytext2=court.text(12,658,"Shots").attr({fontFamily:"Abel",fontSize:11,'text-anchor':'end'})
-	var keytext3=court.text(69,648,"Many").attr({fontFamily:"Abel",fontSize:11,'text-anchor':'start'})
-	var keytext3=court.text(69,658,"Shots").attr({fontFamily:"Abel",fontSize:11,'text-anchor':'start'})
+	if(parseInt(under100)==0){
+		// color key
+		var grad=court.gradient('l()'+choosecolor(-.1)+'-'+choosecolor(-.07)+'-'+choosecolor(-.04)+'-'+choosecolor(-.01)+'-'+'#ffffff'+'-'+choosecolor(.01)+'-'+choosecolor(.04)+'-'+choosecolor(.07)+'-'+choosecolor(.1))
+		var keybox=court.rect(748,640,128,18,2).attr({fill:grad,'shape-rendering':'crispEdges'})
+		var keytext2=court.text(743,648,"Below").attr({fontFamily:"Abel",fontSize:11,'text-anchor':'end'})
+		var keytext2=court.text(743,658,"Average").attr({fontFamily:"Abel",fontSize:11,'text-anchor':'end'})
+		var keytext3=court.text(881,648,"Above").attr({fontFamily:"Abel",fontSize:11,'text-anchor':'start'})
+		var keytext3=court.text(881,658,"Average").attr({fontFamily:"Abel",fontSize:11,'text-anchor':'start'})
+		var divider=court.line(812,640,812,658).attr({'shape-rendering':'crispEdges',stroke:'black','stroke-width':1,opacity:.3})
+
+		// size key
+		var keybox2_1=court.rect(17, 645, 8, 8, 2).attr({fill:choosecolor(.04),strokeWidth:0,'shape-rendering':'crispEdges'})
+		var keybox2_2=court.rect(29, 642, 13, 13, 2).attr({fill:choosecolor(.04),strokeWidth:0,'shape-rendering':'crispEdges'})
+		var keybox2_3=court.rect(46, 639, 18, 18, 2).attr({fill:choosecolor(.04),strokeWidth:0,'shape-rendering':'crispEdges'})
+		var keytext2=court.text(12,648,"Few").attr({fontFamily:"Abel",fontSize:11,'text-anchor':'end'})
+		var keytext2=court.text(12,658,"Shots").attr({fontFamily:"Abel",fontSize:11,'text-anchor':'end'})
+		var keytext3=court.text(69,648,"Many").attr({fontFamily:"Abel",fontSize:11,'text-anchor':'start'})
+		var keytext3=court.text(69,658,"Shots").attr({fontFamily:"Abel",fontSize:11,'text-anchor':'start'})
+	}
+
+	if(parseInt(under100)==1){
+		var makes=court.text(871,628,"Makes").attr({fontFamily:"Abel",fontSize:13,'text-anchor':'start'})
+		var misses=court.text(871,648,"Misses").attr({fontFamily:"Abel",fontSize:13,'text-anchor':'start'})
+		var makeicon=court.circle(861,624,3).attr({id:'temp',fill:'none',stroke:'#00e500',strokeWidth:2});
+		var missicon=court.text(858,648,'x').attr({id:'temp',fontFamily:'PT Sans',fontSize:13,'font-weight':'bold',fill:'red'})
+	}
 }
 
 window.onload=function() {
@@ -499,6 +650,7 @@ window.onload=function() {
 	$.ajax({
 		url: "menus_nba/year_menu.csv",
 		success: function(response){
+			response=response.trim()
 			response=response.split(/\r\n|\n/)
 
 			for (var i=0; i<response.length;i++) {
@@ -510,28 +662,9 @@ window.onload=function() {
 		}
 	});
 
-    dict={chart_type:'1',player1:'Dirk Nowitzki',year:'2011',efficiency:'FG',season:'Regular Season',quarter:'all'}
+    dict={chart_type:'1',player1:'Dirk Nowitzki',year:'2011',efficiency:'FG',season:'Regular Season',quarter:'all',league:'1'}
     load_pshotnew(dict)
 }
-
-
-// update player dropdown
-$("#year_select").change(function() {
-	var year=$( "#year_select" ).val()
-	$("#player_select").empty()
-
-	$.ajax({
-		url: "menus_nba/players_"+year+".csv",
-		success: function(response){
-			response=response.split(/\r\n|\n/)
-
-			for (var i=0; i<response.length;i++) {
-				row=response[i].split(',')
-				try{$('#player_select').append(new Option(row[0].replace(/"/g,'')));}catch(err){}
-			}
-		}
-	});
-})
 
 function kobe_me() {
 	
@@ -542,22 +675,27 @@ function savepng() {
 }
 
 function load_pshotnew(dict) {
-	// var target=document.getElementById('container')
-	// var spinner=new Spinner(opts).spin(target)
-	court.selectAll("[id='temp']").remove()
 	court.append(g)
 	g.animate({opacity: 1},200);
-	console.log(dict)
+	// console.log(dict)
 	$.ajax({
-	url: "http://www.austinclemens.com/cgi-bin/post_numpy2.py",
-	type: "post",
-	datatype: "html",
-	data:   dict,
-	success: function(response){
-		console.log(response)
-		var shot_data = eval("(" + response + ")");
-		drawcourt_pshot(shot_data)
-	}
+		url: "http://www.austinclemens.com/cgi-bin/post_numpy2.py",
+		type: "post",
+		datatype: "html",
+		data:   dict,
+		success: function(response){
+			var shot_data = eval("(" + response + ")");
+			if(shot_data['rows']==0){
+				alert('No data!')
+				g.animate({opacity: 0},200);
+			} else{
+				court.clear()
+				draw_base(dict['year'])
+				tag_court()
+				draw_key(shot_data['under100'])
+				drawcourt_pshot(shot_data)
+			}
+		}
 	});
 }
 
@@ -577,17 +715,22 @@ function drawcourt_pshot(dictionary) {
 	  			size=choosesize(shot_data[n][2],min,max,20)
 
 	  			var square_fg=court.rect(X,Y,0,0,2,2).attr({id:'temp',fill:choosecolor(shot_data[n][3]),stroke:'#999999',strokeWidth:0,'shape-rendering':'crispEdges'});
-	  			square_fg.animate({x:X-(size/2),y:Y-(size/2),height:size,width:size},500,mina.bounce)
+	  			square_fg.animate({x:X-(size/2),y:Y-(size/2),height:size,width:size},1000,mina.bounce)
 	  		}
 		}
 	} else if (dictionary['under100']==1){
 		for(var n = 0; n < shot_data.length; n++) {
 			var X = shot_data[n][2]*1.8+450+9 ;
   			var Y = shot_data[n][3]*1.8+144.5+9 ;
-  			if(shot_data[n][1]==1){color='#00e500'}else{color='red'}
-
-  			var square_fg=court.circle(X,Y,0).attr({id:'temp',fill:'none',stroke:color,strokeWidth:2});
-  			square_fg.animate({r:3},500,mina.bounce)
+  			if(shot_data[n][1]==1){
+				color='#00e500'
+				var square_fg=court.circle(X,Y,0).attr({id:'temp',fill:'none',stroke:color,strokeWidth:2});
+				square_fg.animate({r:3},500,mina.bounce)
+  			} else{
+  				color='red'
+  				var missicon=court.text(X,Y,'x').attr({id:'temp',fontFamily:'PT Sans',fontSize:0,'font-weight':'bold',fill:'red'})
+  				missicon.animate({x:X-5,y:Y-5,fontSize:13},500,mina.bounce)
+  			}
 		}
 	}
 

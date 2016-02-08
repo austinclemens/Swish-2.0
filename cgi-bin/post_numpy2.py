@@ -5,9 +5,9 @@ import MySQLdb
 from json import dumps
 import csv
 from numpy import logical_and, logical_or, concatenate, sqrt, array, sum, empty
-import cgitb
+# import cgitb
 
-cgitb.enable()
+# cgitb.enable()
 
 def chart(shots,average_data,efficiency):
 	# 3pt, made, x, y
@@ -89,12 +89,20 @@ team=data.getfirst('team')
 offense_defense=data.getfirst('defense_offense')
 chart_type=data.getfirst('chart_type')
 hide=data.getfirst('hide')
+league=data.getfirst('league')
 
 # if chart_type==None:
 # 	chart_type=1
 # 	player1="Dirk Nowitzki"
 # 	year="2014"
 # 	season="Regular season"
+
+if league=='1':
+	table='shots2'
+if league=='2':
+	table='shots2_wnba'
+if league=='3':
+	table='shots2_dleague'
 
 if season=="Regular Season":
 	season2=0
@@ -177,13 +185,13 @@ if quarter!='all':
 con=MySQLdb.connect(read_default_file="/home/austinc/etc/my.cnf", host='localhost', db='austinc_allshotdata')
 
 # print "Content-Type: text/html\n\n"
-# print """SELECT three,made,x,y FROM shots2 WHERE %s""" % (string)
+# print """SELECT three,made,x,y FROM %s WHERE %s""" % (table,string+append)
 
 cur=con.cursor()
 if startdate==None or enddate==None:
-	cur.execute("""SELECT three,made,x,y FROM shots2 WHERE %s""" % (string+append))
+	cur.execute("""SELECT three,made,x,y FROM %s WHERE %s""" % (table,string+append))
 if startdate!=None and enddate!=None:
-	cur.execute("SELECT three,made,x,y FROM shots2 "+pre_append+" WHERE %s" % (string))
+	cur.execute("SELECT three,made,x,y FROM %s "+pre_append+" WHERE %s" % (table,string))
 
 rows=cur.fetchall()
 con.close()

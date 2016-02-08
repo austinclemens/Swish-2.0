@@ -11,7 +11,7 @@ import MySQLdb
 import os
 import xml.etree.ElementTree as ET
 from datetime import datetime
-# import requests
+import requests
 
 
 local=1
@@ -87,12 +87,15 @@ def get_nba_shots():
 				season_type='All%20Star'
 				st=3
 
-			nba_call_url='http://stats.nba.com/stats/shotchartdetail?Season=%s&SeasonType=%s&TeamID=0&PlayerID=0&GameID=%s&Outcome=&Location=&Month=0&SeasonSegment=&DateFrom=&Dateto=&OpponentTeamID=0&VsConference=&VsDivision=&Position=&RookieYear=&GameSegment=&Period=0&LastNGames=0&ContextMeasure=FGA' % (season,season_type,game)
+			url='http://stats.nba.com/stats/shotchartdetail?Season=%s&SeasonType=%s&TeamID=0&PlayerID=0&GameID=%s&Outcome=&Location=&Month=0&SeasonSegment=&DateFrom=&Dateto=&OpponentTeamID=0&VsConference=&VsDivision=&Position=&RookieYear=&GameSegment=&Period=0&LastNGames=0&ContextMeasure=FGA' % (season,season_type,game)
 			if game[2]!='4':
-				print nba_call_url
+				print url
 			try:
-				plays=urllib.urlopen(nba_call_url)
-				data=json.loads(plays.read())
+				user_agent = 'Mozilla/5.0 (Windows NT 6.1; Win64; x64)'
+				results = requests.get(url, headers={'User-Agent': user_agent})
+				# plays=urllib.urlopen(nba_call_url)
+				# data=json.load(results)
+				data=results.json()
 				teams=list(set([row[6] for row in data['resultSets'][0]['rowSet']]))
 
 				for row in data['resultSets'][0]['rowSet']:
@@ -129,8 +132,11 @@ def get_wnba_shots():
 		for month in range (6,11,1):
 			url='http://data.wnba.com/data/10s/v2015/json/mobile_teams/wnba/%s/league/10_league_schedule_%02d.json' % (year,month)
 			try:
-				gamedata=urllib.urlopen(url)
-				data=json.loads(gamedata.read())
+				user_agent = 'Mozilla/5.0 (Windows NT 6.1; Win64; x64)'
+				results = requests.get(url, headers={'User-Agent': user_agent})
+				# gamedata=urllib.urlopen(url)
+				# data=json.loads(results)
+				data=results.json()
 			except:
 				pass
 			try:
@@ -155,8 +161,10 @@ def get_wnba_shots():
 		# print url
 		root=[[]]
 		try:
-			shots=urllib.urlopen(url)
-			tree=ET.parse(shots.read())
+			user_agent = 'Mozilla/5.0 (Windows NT 6.1; Win64; x64)'
+			results = requests.get(url, headers={'User-Agent': user_agent})
+			# shots=urllib.urlopen(url)
+			tree=ET.parse(results)
 			root=tree.getroot()
 			visit=root[0].attrib['vtm'].split('|')[3]+' '+root[0].attrib['vtm'].split('|')[2]
 			home=root[0].attrib['htm'].split('|')[3]+' '+root[0].attrib['htm'].split('|')[2]
@@ -248,10 +256,13 @@ def get_dleague_shots():
 				season_type='All%20Star'
 				st=3
 
-			nba_call_url='http://stats.nbadleague.com/stats/shotchartdetail?Season=%s&LeagueID=20&SeasonType=Regular%%20Season&TeamID=0&PlayerID=0&GameID=%s&Outcome=&Location=&Month=0&SeasonSegment=&DateFrom=&Dateto=&OpponentTeamID=0&VsConference=&VsDivision=&Position=&RookieYear=&GameSegment=&Period=0&LastNGames=0&ContextMeasure=FGA' % (season,game)
+			url='http://stats.nbadleague.com/stats/shotchartdetail?Season=%s&LeagueID=20&SeasonType=Regular%%20Season&TeamID=0&PlayerID=0&GameID=%s&Outcome=&Location=&Month=0&SeasonSegment=&DateFrom=&Dateto=&OpponentTeamID=0&VsConference=&VsDivision=&Position=&RookieYear=&GameSegment=&Period=0&LastNGames=0&ContextMeasure=FGA' % (season,game)
 			# print nba_call_url
-			plays=urllib.urlopen(nba_call_url)
-			data=json.loads(plays.read())
+			user_agent = 'Mozilla/5.0 (Windows NT 6.1; Win64; x64)'
+			results = requests.get(url, headers={'User-Agent': user_agent})
+			# plays=urllib.urlopen(nba_call_url)
+			# data=json.loads(plays.read())
+			data=results.json()
 			teams=list(set([row[6] for row in data['resultSets'][0]['rowSet']]))
 
 			for row in data['resultSets'][0]['rowSet']:
@@ -375,8 +386,11 @@ def game_info_scrape():
 def get_game_info(game):
 	url="http://stats.nba.com/stats/boxscore?StartPeriod=0&EndPeriod=0&StartRange=0&EndRange=0&RangeType=0&GameID=%s" % (game)
 	
-	box=urllib.urlopen(url)
-	boxscore=json.loads(box.read())
+	# box=urllib.urlopen(url)
+	user_agent = 'Mozilla/5.0 (Windows NT 6.1; Win64; x64)'
+	results = requests.get(url, headers={'User-Agent': user_agent})
+	# boxscore=json.loads(results)
+	boxscore=results.json()
 	
 	date=boxscore['resultSets'][0]['rowSet'][0][0][0:10]
 	nba_homeid=boxscore['resultSets'][0]['rowSet'][0][6]
@@ -411,16 +425,17 @@ def game_dates():
 	for game in rows:
 		url='http://stats.nba.com/stats/boxscore?StartPeriod=0&EndPeriod=0&StartRange=0&EndRange=0&RangeType=0&GameID=%s' % (game)
 		print url
-		user_agent = 'Mozilla/5.0 (Windows NT 6.1; Win64; x64)'
+		
 
 		# headers = { 'User-Agent' : user_agent }
 		# values = {'name' : 'Austin Clemens'}
 		# data = urllib.urlencode(values)
 		# req = urllib.Request(url, data, headers)
-		results = urllib2.urlopen(url)
-
-		# results = requests.get(url, headers={'User-Agent': user_agent})
-		output=json.load(results.read())
+		# results = urllib2.urlopen(url)
+		user_agent = 'Mozilla/5.0 (Windows NT 6.1; Win64; x64)'
+		results = requests.get(url, headers={'User-Agent': user_agent})
+		# output=json.load(results)
+		output=results.json()
 		date=output['resultSets'][0]['rowSet'][0][0]
 		date=date[0:10]
 		date=datetime.strptime(date,'%Y-%m-%d')
@@ -432,15 +447,15 @@ def game_dates():
 		con.close()
 
 
-def get(url):
-	print 'wait'
-	try:
-		output=urllib2.urlopen(url)
-		output=json.loads(output)
-		return output
-	except:
-		time.sleep(1)
-		get(url)
+# def get(url):
+# 	print 'wait'
+# 	try:
+# 		output=urllib2.urlopen(url)
+# 		output=json.loads(output)
+# 		return output
+# 	except:
+# 		time.sleep(1)
+# 		get(url)
 
 
 if local==0:
