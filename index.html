@@ -180,13 +180,15 @@ body {background-color:#eef0f0;}
 			</div>
 		</div>
 
-<!-- 		<div class='small-4 columns'>
+<!-- 		
+		<div class='small-4 columns'>
 			<div class='input-group input-daterange'>
 				<input type="text" class="input-group-field" id='date1'>
 				<span class='input-group-label noborder'>to</span>
 				<input type="text" class="input-group-field" id='date2'>
 			</div>
-		</div> -->
+		</div> 
+-->
 
 		<div class='small-4 columns'>
 		</div>
@@ -215,9 +217,9 @@ body {background-color:#eef0f0;}
 			<div class='input-group'>
 				<span class='input-group-label'>Type</span>
 				<select id='ttype_select'>
-					<option value="regular">Regular Season</option>
-					<option value="playoff">Playoffs</option>
-		 			<option value="allstar">All Star</option>
+					<option>Regular Season</option>
+					<option>Playoffs</option>
+		 			<option>All Star</option>
 				</select>
 			</div>
 		</div>
@@ -254,13 +256,15 @@ body {background-color:#eef0f0;}
 			</div>
 		</div>
 
-<!-- 		<div class='small-4 columns'>
+<!-- 		
+		<div class='small-4 columns'>
 			<div class='input-group input-daterange'>
 				<input type="text" class="input-group-field" id='date3'>
 				<span class='input-group-label noborder'>to</span>
 				<input type="text" class="input-group-field" id='date4'>
 			</div>
-		</div> -->
+		</div> 
+-->
 
 		<div class='small-4 columns'>
 			<div class='input-group'>
@@ -277,11 +281,6 @@ body {background-color:#eef0f0;}
 	</div>
 
 </div>
-
-
-
-
-
 
 <div class='footer'>
 	<div class='row'>
@@ -325,7 +324,35 @@ $('.navigation').click(function(){
 
 function chleague(num){
 	league=num
+	if(league==1){url="menus_nba/year_menu.csv"}
+	if(league==2){url="menus_wnba/year_menu.csv"}
+	if(league==3){url="menus_dleague/year_menu.csv"}
+
+	$("#year_select").empty()
+	$("#tyear_select").empty()
+
+	$.ajax({
+		url: url,
+		success: function(response){
+			response=response.trim()
+			response=response.split(/\r\n|\n/)
+
+			for (var i=0; i<response.length;i++) {
+				row=response[i].split(',')
+				try{$('#year_select').append(new Option(row[0].replace(/"/g,'')));}catch(err){}
+				try{$('#tyear_select').append(new Option(row[0].replace(/"/g,'')));}catch(err){}
+			}
+			if(league==1){
+				$('#year_select').append(new Option('Career','Career'))
+				$('#year_select').change();
+				$('#tyear_select').append(new Option('Career','Career'))
+				$('#tyear_select').change();
+			}
+		}
+	});
+
 	$("#year_select").trigger('change')
+	$("#tyear_select").trigger('change')
 }
 
 // initialize dates
@@ -348,7 +375,8 @@ function chleague(num){
 // update player dropdown
 $("#year_select").change(function() {
 	var year=$( "#year_select" ).val()
-	var year=year.split('-')[0]
+	console.log(league,year)
+	if(league!=2){var year=year.split('-')[0]}
 	$("#player_select").empty()
 
 	if(league==1){url="menus_nba/players_"+year+".csv"}
@@ -370,9 +398,9 @@ $("#year_select").change(function() {
 })
 
 // update team dropdown
-$("#year_select").change(function() {
-	var year=$( "#year_select" ).val()
-	var year=year.split('-')[0]
+$("#tyear_select").change(function() {
+	var year=$( "#tyear_select" ).val()
+	if(league!=2){var year=year.split('-')[0]}
 	$("#team_select").empty()
 
 	if(league==1){url="menus_nba/teams_"+year+".csv"}
@@ -382,6 +410,7 @@ $("#year_select").change(function() {
 	$.ajax({
 		url: url,
 		success: function(response){
+			response=response.trim()
 			response=response.split(/\r\n|\n/)
 
 			for (var i=0; i<response.length;i++) {
@@ -400,8 +429,8 @@ function load_chart(){
 		var type=$("#type_select").val()
 		var player=$("#player_select").val()
 		var quarter=$("#quarter_select").val()
-		var startdate=$("#startdate_select").val()
-		var enddate=$("#enddate_select").val()
+		// var startdate=$("#startdate_select").val()
+		// var enddate=$("#enddate_select").val()
 
 		if(league==2){player=' '+player}
 
@@ -411,17 +440,18 @@ function load_chart(){
 	}
 
 	if (active_tab=='teams'){
+		console.log('check')
 		var season=$("#tyear_select").val()
 		var season=season.split('-')[0]
 		var type=$("#ttype_select").val()
-		var player=$("#team_select").val()
+		var team=$("#team_select").val()
 		var quarter=$("#tquarter_select").val()
-		var startdate=$("#tstartdate_select").val()
-		var enddate=$("#tenddate_select").val()
+		// var startdate=$("#tstartdate_select").val()
+		// var enddate=$("#tenddate_select").val()
 		var side=$("#tside_select").val()
 
-	    dict={chart_type:'3',player1:player,year:year,season:type,quarter:quarter,startdate:startdate,enddate:enddate,side:side,quarter:quarter,league:league}
-		// console.log(dict)
+	    dict={chart_type:'3',team:team,year:season.toString(),season:type,efficiency:'FG',quarter:quarter,side:side,league:league}
+		console.log(dict)
 	    load_pshotnew(dict)
 	}
 }
@@ -570,7 +600,7 @@ function draw_base(year) {
 		var baseline=court.line(0,50,900,50).attr({'shape-rendering':'crispEdges','stroke-width':2})
 
 		// arcs
-		var three_arc=court.path("M54,144.5A396.625,396.625 1 0,0 846,144.5")
+		var three_arc=court.path("M54,144.5A396,396 1 0,0 846,144.5")
 		var inner_ft_circle=court.path("M342,392A108,108 1 0,1 558,392").attr({ "stroke-dasharray" : [22.5,22.5]});
 		var outer_ft_circle=court.path("M342,392A108,108 1 0,0 558,392")
 		var hoop=court.circle(450,134.6,13.5)
@@ -656,9 +686,12 @@ window.onload=function() {
 			for (var i=0; i<response.length;i++) {
 				row=response[i].split(',')
 				try{$('#year_select').append(new Option(row[0].replace(/"/g,'')));}catch(err){}
+				try{$('#tyear_select').append(new Option(row[0].replace(/"/g,'')));}catch(err){}
 			}
 			$('#year_select').append(new Option('Career','Career'))
 			$('#year_select').change();
+			$('#tyear_select').append(new Option('Career','Career'))
+			$('#tyear_select').change();
 		}
 	});
 
@@ -677,26 +710,33 @@ function savepng() {
 function load_pshotnew(dict) {
 	court.append(g)
 	g.animate({opacity: 1},200);
-	// console.log(dict)
-	$.ajax({
-		url: "http://www.austinclemens.com/cgi-bin/post_numpy2.py",
-		type: "post",
-		datatype: "html",
-		data:   dict,
-		success: function(response){
-			var shot_data = eval("(" + response + ")");
-			if(shot_data['rows']==0){
-				alert('No data!')
-				g.animate({opacity: 0},200);
-			} else{
-				court.clear()
-				draw_base(dict['year'])
-				tag_court()
-				draw_key(shot_data['under100'])
-				drawcourt_pshot(shot_data)
+	console.log(dict)
+	try{
+		$.ajax({
+			url: "http://www.austinclemens.com/cgi-bin/post_numpy2.py",
+			type: "post",
+			datatype: "html",
+			data:   dict,
+			success: function(response){
+				var shot_data = eval("(" + response + ")");
+				console.log(shot_data)
+				if(shot_data['rows']==0){
+					alert('No data!')
+					g.animate({opacity: 0},200);
+				} else{
+					console.log(shot_data)
+					court.clear()
+					draw_base(dict['year'])
+					tag_court()
+					draw_key(shot_data['under100'])
+					drawcourt_pshot(shot_data)
+				}
 			}
-		}
-	});
+		});
+	} catch(err){
+		alert("Can't load this chart.")
+		g.animate({opacity: 0},200)
+	}
 }
 
 function drawcourt_pshot(dictionary) {

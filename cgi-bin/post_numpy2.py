@@ -5,9 +5,9 @@ import MySQLdb
 from json import dumps
 import csv
 from numpy import logical_and, logical_or, concatenate, sqrt, array, sum, empty
-# import cgitb
+import cgitb
 
-# cgitb.enable()
+cgitb.enable()
 
 def chart(shots,average_data,efficiency):
 	# 3pt, made, x, y
@@ -86,7 +86,7 @@ quarter=data.getfirst('quarter')
 startdate=data.getfirst('startdate')
 enddate=data.getfirst('enddate')
 team=data.getfirst('team')
-offense_defense=data.getfirst('defense_offense')
+offense_defense=int(data.getfirst('side'))
 chart_type=data.getfirst('chart_type')
 hide=data.getfirst('hide')
 league=data.getfirst('league')
@@ -235,6 +235,7 @@ else:
 results_csv['details']=details
 results_csv['players']=players
 results_csv['rows']=len(rows)
+results_csv['query']="""SELECT three,made,x,y FROM %s WHERE %s""" % (table,string+append)
 # results_csv.append(string)
 
 # rim_rows = rows[rows[:,2]**2+rows[:,3]**2<80**2]
