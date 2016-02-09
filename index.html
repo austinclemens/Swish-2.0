@@ -347,12 +347,14 @@ function chleague(num){
 				$('#year_select').change();
 				$('#tyear_select').append(new Option('Career','Career'))
 				$('#tyear_select').change();
+			} else {
+				$("#year_select").change()
+				$("#tyear_select").change()
 			}
 		}
 	});
 
-	$("#year_select").trigger('change')
-	$("#tyear_select").trigger('change')
+	
 }
 
 // initialize dates
@@ -374,6 +376,7 @@ function chleague(num){
 
 // update player dropdown
 $("#year_select").change(function() {
+	splayer=$("#player_select").val()
 	var year=$( "#year_select" ).val()
 	console.log(league,year)
 	if(league!=2){var year=year.split('-')[0]}
@@ -392,6 +395,11 @@ $("#year_select").change(function() {
 			for (var i=0; i<response.length;i++) {
 				row=response[i].split(',')
 				try{$('#player_select').append(new Option(row[0].replace(/"/g,'')));}catch(err){}
+			}
+
+			$('#player_select').val(splayer)
+			if($('#player_select').val()==null){
+				$("#player_select").val($("#player_select option:first").val());
 			}
 		}
 	});
@@ -440,7 +448,6 @@ function load_chart(){
 	}
 
 	if (active_tab=='teams'){
-		console.log('check')
 		var season=$("#tyear_select").val()
 		var season=season.split('-')[0]
 		var type=$("#ttype_select").val()
@@ -510,13 +517,26 @@ function draw_base(year) {
 		longleftzone=court.line(50,306,306,306).attr({'stroke-dasharray':[6,6],'stroke-width':1,stroke:'#000',opacity:.1,'shape-rendering':'crispEdges'})
 		longrightzone=court.line(594,306,846,306).attr({'stroke-dasharray':[6,6],'stroke-width':1,stroke:'#000',opacity:.1,'shape-rendering':'crispEdges'})
 		longcenterzone1=court.line(306,392,306,545).attr({'stroke-dasharray':[6,6],'stroke-width':1,stroke:'#000',opacity:.1,'shape-rendering':'crispEdges'})
-		longcenterzone1=court.line(594,392,594,545).attr({'stroke-dasharray':[6,6],'stroke-width':1,stroke:'#000',opacity:.1,'shape-rendering':'crispEdges'})
+		longcenterzone2=court.line(594,392,594,545).attr({'stroke-dasharray':[6,6],'stroke-width':1,stroke:'#000',opacity:.1,'shape-rendering':'crispEdges'})
 		leftarc=court.line(246,522,186,664).attr({'stroke-dasharray':[6,6],'stroke-width':1,stroke:'#000',opacity:.1,'shape-rendering':'crispEdges'})
 		rightarc=court.line(654,522,714,664).attr({'stroke-dasharray':[6,6],'stroke-width':1,stroke:'#000',opacity:.1,'shape-rendering':'crispEdges'})
 
+		// zonepaths
+		left3zonepath=court.path('M0,50L0,306L54,306L54,50L0,50').attr({fill:'none',id:'zone'})
+		right3zonepath=court.path('M846,50L846,306L900,306L900,50L846,50').attr({fill:'none',id:'zone'})
+		leftlongzonepath=court.path('M54,50L54,306L306,306L306,50L54,50').attr({fill:'none',id:'zone'})
+		rightlongzonepath=court.path('M594,50L594,306L846,306L846,50L594,50').attr({fill:'none',id:'zone'})
+		keyzonepath=court.path('M306,50L306,392L594,392L594,50L306,50').attr({fill:'none',id:'zone'})
+		longcenterzonepath=court.path('M594,545L594,392L306,392L306,545A427.5,427.5 1 0,0 594,545').attr({fill:'none',id:'zone'})
+		insideleftarcpath=court.path('M306,545L306,306L54,306A427.5,427.5 1 0,0 306,545').attr({fill:'none',id:'zone'})
+		insiderightarcpath=court.path('M594,545L594,306L846,306A427.5,427.5 0 0,1 594,545').attr({fill:'none',id:'zone'})
+		leftarcpath=court.path('M246,521L186,664L0,664L0,306L54,306A427.5,427.5 0 0,0 246,521').attr({fill:'none',id:'zone'})
+		rightarcpath=court.path('M654,521L714,664L900,664L900,306L846,306A427.5,427.5 0 0,1 654,521').attr({fill:'none',id:'zone'})
+		centerarcpath=court.path('M246,521L186,664L714,664L654,521A427.5,427.5 0 0,1 246,521').attr({fill:'none',id:'zone'})
+
 		// grouping and applying attributes
 		courtlines=court.group(key_outer_left,key_outer_right,key_inner_left,key_inner_right,key_top,baseline_tick_left,baseline_tick_right,ft_tick_left,ft_tick_right,backboard,nocharge_tick_left,nocharge_tick_right,key_left_tick1,key_left_tick2,key_left_tick3,key_left_tick4,key_right_tick1,key_right_tick2,key_right_tick3,key_right_tick4,left_threeline,right_threeline,three_arc,inner_ft_circle,outer_ft_circle,hoop,nocharge,baseline)
-		courtlines.attr({stroke: "#000",fill: "none",strokeWidth:1})
+		courtlines.attr({stroke: "black",fill: "none",strokeWidth:1})
 	}
 
 	if(league==2 && parseInt(year)<2013){
@@ -544,12 +564,12 @@ function draw_base(year) {
 		var key_right_tick3=court.line(594,248,607.5,248).attr({'shape-rendering':'crispEdges'})
 		var key_left_tick4=court.line(306,302,292.5,302).attr({'shape-rendering':'crispEdges'})
 		var key_right_tick4=court.line(594,302,607.5,302).attr({'shape-rendering':'crispEdges'})
-		var left_threeline=court.line(81,50,81,144.5).attr({'shape-rendering':'crispEdges'})
-		var right_threeline=court.line(819,50,819,144.5).attr({'shape-rendering':'crispEdges'})
+		var left_threeline=court.line(94.5,50,94.5,144.5).attr({'shape-rendering':'crispEdges'})
+		var right_threeline=court.line(805.5,50,805.5,144.5).attr({'shape-rendering':'crispEdges'})
 		var baseline=court.line(0,50,900,50).attr({'shape-rendering':'crispEdges','stroke-width':2})
 
 		// arcs
-		var three_arc=court.path("M81,144.5A1,1 1 0,0 819,144.5")
+		var three_arc=court.path("M94.5,144.5A355.5,355.5 1 0,0 805.5,144.5")
 		var inner_ft_circle=court.path("M342,392A108,108 1 0,1 558,392").attr({ "stroke-dasharray" : [22.5,22.5]});
 		var outer_ft_circle=court.path("M342,392A108,108 1 0,0 558,392")
 		var hoop=court.circle(450,134.6,13.5)
@@ -560,10 +580,23 @@ function draw_base(year) {
 		right3zone=court.line(846,306,896,306).attr({'stroke-dasharray':[6,6],'stroke-width':1,stroke:'#000',opacity:.1,'shape-rendering':'crispEdges'})
 		longleftzone=court.line(50,306,306,306).attr({'stroke-dasharray':[6,6],'stroke-width':1,stroke:'#000',opacity:.1,'shape-rendering':'crispEdges'})
 		longrightzone=court.line(594,306,846,306).attr({'stroke-dasharray':[6,6],'stroke-width':1,stroke:'#000',opacity:.1,'shape-rendering':'crispEdges'})
-		longcenterzone1=court.line(306,392,306,545).attr({'stroke-dasharray':[6,6],'stroke-width':1,stroke:'#000',opacity:.1,'shape-rendering':'crispEdges'})
-		longcenterzone1=court.line(594,392,594,545).attr({'stroke-dasharray':[6,6],'stroke-width':1,stroke:'#000',opacity:.1,'shape-rendering':'crispEdges'})
-		leftarc=court.line(246,522,186,664).attr({'stroke-dasharray':[6,6],'stroke-width':1,stroke:'#000',opacity:.1,'shape-rendering':'crispEdges'})
-		rightarc=court.line(654,522,714,664).attr({'stroke-dasharray':[6,6],'stroke-width':1,stroke:'#000',opacity:.1,'shape-rendering':'crispEdges'})
+		longcenterzone1=court.line(306,392,306,485).attr({'stroke-dasharray':[6,6],'stroke-width':1,stroke:'#000',opacity:.1,'shape-rendering':'crispEdges'})
+		longcenterzone1=court.line(594,392,594,485).attr({'stroke-dasharray':[6,6],'stroke-width':1,stroke:'#000',opacity:.1,'shape-rendering':'crispEdges'})
+		leftarc=court.line(276,470,186,664).attr({'stroke-dasharray':[6,6],'stroke-width':1,stroke:'#000',opacity:.1,'shape-rendering':'crispEdges'})
+		rightarc=court.line(624,470,714,664).attr({'stroke-dasharray':[6,6],'stroke-width':1,stroke:'#000',opacity:.1,'shape-rendering':'crispEdges'})
+
+		// zonepaths
+		// left3zonepath=court.path('M54,50L0,50L0,306L89,306A396,396 0 0,1 54,144.5L54,50').attr({fill:'black',id:'zone'})
+		// right3zonepath=court.path('M846,50L900,50L900,306L811,306A396,396 1 0,0 846,144.5L846,50').attr({fill:'black',id:'zone'})
+		// leftlongzonepath=court.path('M54,144.5L54,50L306,50L306,306L89,306A396,396, 1 0,1 54,144.5').attr({fill:'black',id:'zone'})
+		// rightlongzonepath=court.path('M846,144.5L846,50L594,50L594,306L811,306A396,396, 1 0,0 846,144.5').attr({fill:'black',id:'zone'})
+		// keyzonepath=court.path('M306,50L306,392L594,392L594,50L306,50').attr({fill:'black',id:'zone'})
+		// longcenterzonepath=court.path('M594,515L594,392L306,392L306,515A396,396 1 0,0 594,515').attr({fill:'black',id:'zone'})
+		// insideleftarcpath=court.path('M89,306L306,306L306,515A396,396 1 0,1 89,306').attr({fill:'black',id:'zone'})
+		// insiderightarcpath=court.path('M811,306L594,306L594,515A396,396 1 0,0 811,306').attr({fill:'black',id:'zone'})
+		// leftarcpath=court.path('M269,497L186,664L0,664L0,306L89,306A396,396 0 0,0 269,497').attr({fill:'black',id:'zone'})
+		// rightarcpath=court.path('M631,497L714,664L900,664L900,306L811,306A396,396 0 0,1 631,497').attr({fill:'black',id:'zone'})
+		// centerarcpath=court.path('M269,497L186,664L714,664L631,497A396,396 0 0,1 269,497').attr({fill:'black',id:'zone'})
 
 		// grouping and applying attributes
 		courtlines=court.group(key_outer_left,key_outer_right,key_inner_left,key_inner_right,key_top,baseline_tick_left,baseline_tick_right,ft_tick_left,ft_tick_right,backboard,nocharge_tick_left,nocharge_tick_right,key_left_tick1,key_left_tick2,key_left_tick3,key_left_tick4,key_right_tick1,key_right_tick2,key_right_tick3,key_right_tick4,left_threeline,right_threeline,three_arc,inner_ft_circle,outer_ft_circle,hoop,nocharge,baseline)
@@ -611,10 +644,23 @@ function draw_base(year) {
 		right3zone=court.line(846,306,896,306).attr({'stroke-dasharray':[6,6],'stroke-width':1,stroke:'#000',opacity:.1,'shape-rendering':'crispEdges'})
 		longleftzone=court.line(50,306,306,306).attr({'stroke-dasharray':[6,6],'stroke-width':1,stroke:'#000',opacity:.1,'shape-rendering':'crispEdges'})
 		longrightzone=court.line(594,306,846,306).attr({'stroke-dasharray':[6,6],'stroke-width':1,stroke:'#000',opacity:.1,'shape-rendering':'crispEdges'})
-		longcenterzone1=court.line(306,392,306,545).attr({'stroke-dasharray':[6,6],'stroke-width':1,stroke:'#000',opacity:.1,'shape-rendering':'crispEdges'})
-		longcenterzone1=court.line(594,392,594,545).attr({'stroke-dasharray':[6,6],'stroke-width':1,stroke:'#000',opacity:.1,'shape-rendering':'crispEdges'})
-		leftarc=court.line(246,522,186,664).attr({'stroke-dasharray':[6,6],'stroke-width':1,stroke:'#000',opacity:.1,'shape-rendering':'crispEdges'})
-		rightarc=court.line(654,522,714,664).attr({'stroke-dasharray':[6,6],'stroke-width':1,stroke:'#000',opacity:.1,'shape-rendering':'crispEdges'})
+		longcenterzone1=court.line(306,392,306,515).attr({'stroke-dasharray':[6,6],'stroke-width':1,stroke:'#000',opacity:.1,'shape-rendering':'crispEdges'})
+		longcenterzone1=court.line(594,392,594,515).attr({'stroke-dasharray':[6,6],'stroke-width':1,stroke:'#000',opacity:.1,'shape-rendering':'crispEdges'})
+		leftarc=court.line(266,500,186,664).attr({'stroke-dasharray':[6,6],'stroke-width':1,stroke:'#000',opacity:.1,'shape-rendering':'crispEdges'})
+		rightarc=court.line(634,500,714,664).attr({'stroke-dasharray':[6,6],'stroke-width':1,stroke:'#000',opacity:.1,'shape-rendering':'crispEdges'})
+
+		// zonepaths
+		left3zonepath=court.path('M54,50L0,50L0,306L89,306A396,396 0 0,1 54,144.5L54,50').attr({fill:'none',id:'zone'})
+		right3zonepath=court.path('M846,50L900,50L900,306L811,306A396,396 1 0,0 846,144.5L846,50').attr({fill:'none',id:'zone'})
+		leftlongzonepath=court.path('M54,144.5L54,50L306,50L306,306L89,306A396,396, 1 0,1 54,144.5').attr({fill:'none',id:'zone'})
+		rightlongzonepath=court.path('M846,144.5L846,50L594,50L594,306L811,306A396,396, 1 0,0 846,144.5').attr({fill:'none',id:'zone'})
+		keyzonepath=court.path('M306,50L306,392L594,392L594,50L306,50').attr({fill:'none',id:'zone'})
+		longcenterzonepath=court.path('M594,515L594,392L306,392L306,515A396,396 1 0,0 594,515').attr({fill:'none',id:'zone'})
+		insideleftarcpath=court.path('M89,306L306,306L306,515A396,396 1 0,1 89,306').attr({fill:'none',id:'zone'})
+		insiderightarcpath=court.path('M811,306L594,306L594,515A396,396 1 0,0 811,306').attr({fill:'none',id:'zone'})
+		leftarcpath=court.path('M269,497L186,664L0,664L0,306L89,306A396,396 0 0,0 269,497').attr({fill:'none',id:'zone'})
+		rightarcpath=court.path('M631,497L714,664L900,664L900,306L811,306A396,396 0 0,1 631,497').attr({fill:'none',id:'zone'})
+		centerarcpath=court.path('M269,497L186,664L714,664L631,497A396,396 0 0,1 269,497').attr({fill:'none',id:'zone'})
 
 		// grouping and applying attributes
 		courtlines=court.group(key_outer_left,key_outer_right,key_inner_left,key_inner_right,key_top,baseline_tick_left,baseline_tick_right,ft_tick_left,ft_tick_right,backboard,nocharge_tick_left,nocharge_tick_right,key_left_tick1,key_left_tick2,key_left_tick3,key_left_tick4,key_right_tick1,key_right_tick2,key_right_tick3,key_right_tick4,left_threeline,right_threeline,three_arc,inner_ft_circle,outer_ft_circle,hoop,nocharge,baseline)
@@ -695,7 +741,10 @@ window.onload=function() {
 		}
 	});
 
-    dict={chart_type:'1',player1:'Dirk Nowitzki',year:'2011',efficiency:'FG',season:'Regular Season',quarter:'all',league:'1'}
+    // dict={chart_type:'1',player1:'Dirk Nowitzki',year:'2011',efficiency:'FG',season:'Regular Season',quarter:'all',league:'1'}
+    league=2
+    // dict={chart_type:'1',player1:' Abby Bishop',year:'2015',efficiency:'FG',season:'Regular Season',quarter:'all',league:'2'}
+    dict={chart_type:'1',player1:' Alana Beard',year:'2012',efficiency:'FG',season:'Regular Season',quarter:'all',league:'2'}
     load_pshotnew(dict)
 }
 
@@ -719,12 +768,11 @@ function load_pshotnew(dict) {
 			data:   dict,
 			success: function(response){
 				var shot_data = eval("(" + response + ")");
-				console.log(shot_data)
+				// console.log(shot_data)
 				if(shot_data['rows']==0){
 					alert('No data!')
 					g.animate({opacity: 0},200);
 				} else{
-					console.log(shot_data)
 					court.clear()
 					draw_base(dict['year'])
 					tag_court()

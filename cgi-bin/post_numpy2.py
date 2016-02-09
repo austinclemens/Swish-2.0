@@ -118,6 +118,8 @@ if int(chart_type)==3:
 	post_append=""
 	year3="%02d" % (int(year[2:4])+1,)
 	year2=year+'-'+year3[-2:]
+	if league==2:
+		year2=year
 	y_string="='%s'" % (year)
 
 	if int(offense_defense)==0:
