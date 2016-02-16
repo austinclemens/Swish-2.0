@@ -117,7 +117,7 @@ body {background-color:#eef0f0;}
 
 <div class='row'>
 	<div class='small-12 small-centered columns text-center'>
-		<button class="button left" onclick='kobe_me' href="#"><i class="fa fa-trophy"></i>Kobe me</button><button class="button middle" onclick='load_chart()' href="#"><i class="fa fa-refresh"></i>Chart it</button><button class="button right" href="#"><i class="fa fa-download" onclick='savepng'></i>Download</button>
+		<button class="button left" onclick='kobe_me()' href="#"><i class="fa fa-trophy"></i>Kobe me</button><button class="button middle" onclick='load_chart()' href="#"><i class="fa fa-refresh"></i>Chart it</button><button class="button right" href="#"><i class="fa fa-download" onclick='savepng'></i>Download</button>
 	</div>
 </div>
 
@@ -339,8 +339,10 @@ function chleague(num){
 
 			for (var i=0; i<response.length;i++) {
 				row=response[i].split(',')
-				try{$('#year_select').append(new Option(row[0].replace(/"/g,'')));}catch(err){}
-				try{$('#tyear_select').append(new Option(row[0].replace(/"/g,'')));}catch(err){}
+				if(row[0].replace(/"/g,'')!='2012'){
+					try{$('#year_select').append(new Option(row[0].replace(/"/g,'')));}catch(err){}
+					try{$('#tyear_select').append(new Option(row[0].replace(/"/g,'')));}catch(err){}
+				}
 			}
 			if(league==1){
 				$('#year_select').append(new Option('Career','Career'))
@@ -521,6 +523,18 @@ function draw_base(year) {
 		leftarc=court.line(246,522,186,664).attr({'stroke-dasharray':[6,6],'stroke-width':1,stroke:'#000',opacity:.1,'shape-rendering':'crispEdges'})
 		rightarc=court.line(654,522,714,664).attr({'stroke-dasharray':[6,6],'stroke-width':1,stroke:'#000',opacity:.1,'shape-rendering':'crispEdges'})
 
+
+		// 136.6,290    103.3,368.88
+		// -113.4,237.5     50.8,118.9
+
+		// rise: 118.6
+		// run: 164.2
+		// slope: .722
+
+		// 237.5=.722*-113.4+z - 81.87
+		// 118.9=.722*50.8+z - 82.2224
+
+
 		// zonepaths
 		left3zonepath=court.path('M0,50L0,306L54,306L54,50L0,50').attr({fill:'none',id:'zone'})
 		right3zonepath=court.path('M846,50L846,306L900,306L900,50L846,50').attr({fill:'none',id:'zone'})
@@ -534,73 +548,22 @@ function draw_base(year) {
 		rightarcpath=court.path('M654,521L714,664L900,664L900,306L846,306A427.5,427.5 0 0,1 654,521').attr({fill:'none',id:'zone'})
 		centerarcpath=court.path('M246,521L186,664L714,664L654,521A427.5,427.5 0 0,1 246,521').attr({fill:'none',id:'zone'})
 
+		// x<=-220 and y<=87.5
+		// x>=220 and y<=87.5
+		// x>-220 and x<-80 and y<=87.5
+		// x<220 and x>80 and y<=87.5
+		// y<117.5 and x>=-80 and x<=80
+		// y>=117.5 and x>=-80 and x<=80 and (x^2 + y^2)<237.5^2
+		// y>87.5 and x<-80 and (x^2 + y^2)<237.5^2
+		// y>87.5 and x>80 and (x^2 + y^2)<237.5^2
+		// y>87.5 and (x^2 + y^2)>=237.5^2 and 
+		// y>87.5 and (x^2 + y^2)>=237.5^2 and 
+		// (x^2 + y^2)>=237.5^2
+
+
 		// grouping and applying attributes
 		courtlines=court.group(key_outer_left,key_outer_right,key_inner_left,key_inner_right,key_top,baseline_tick_left,baseline_tick_right,ft_tick_left,ft_tick_right,backboard,nocharge_tick_left,nocharge_tick_right,key_left_tick1,key_left_tick2,key_left_tick3,key_left_tick4,key_right_tick1,key_right_tick2,key_right_tick3,key_right_tick4,left_threeline,right_threeline,three_arc,inner_ft_circle,outer_ft_circle,hoop,nocharge,baseline)
 		courtlines.attr({stroke: "black",fill: "none",strokeWidth:1})
-	}
-
-	if(league==2 && parseInt(year)<2013){
-		// lines and rects
-		var graph_box=court.rect(-30,-20,1100,1000).attr({fill:'#eef0f0'})
-		var credit_box=court.rect(-30,664,1100,20).attr({fill:'#606060'})
-		// var details_box=court.rect(0,30,900,20).attr({fill:'#606060'})
-		var key_outer_left=court.line(306,50,306,392).attr({'shape-rendering':'crispEdges'})
-		var key_outer_right=court.line(594,50,594,392).attr({'shape-rendering':'crispEdges'})
-		var key_inner_left=court.line(342,50,342,392).attr({'shape-rendering':'crispEdges'})
-		var key_inner_right=court.line(558,50,558,392).attr({'shape-rendering':'crispEdges'})
-		var key_top=court.line(306,392,594,392).attr({'shape-rendering':'crispEdges'})
-		var baseline_tick_left=court.line(252,50,252,59).attr({'shape-rendering':'crispEdges'})
-		var baseline_tick_right=court.line(648,50,648,59).attr({'shape-rendering':'crispEdges'})
-		var ft_tick_left=court.line(360,284,369,284).attr({'shape-rendering':'crispEdges'})
-		var ft_tick_right=court.line(540,284,531,284).attr({'shape-rendering':'crispEdges'})
-		var backboard=court.line(396,120.2,504,120.2).attr({'shape-rendering':'crispEdges'})
-		var nocharge_tick_left=court.line(378,125.6,378,148.1).attr({'shape-rendering':'crispEdges'})
-		var nocharge_tick_right=court.line(522,125.6,522,148.1).attr({'shape-rendering':'crispEdges'})
-		var key_left_tick1=court.line(306,176,292.5,176).attr({'shape-rendering':'crispEdges'})
-		var key_right_tick1=court.line(594,176,607.5,176).attr({'shape-rendering':'crispEdges'})
-		var key_left_tick2=court.line(306,194,292.5,194).attr({'shape-rendering':'crispEdges'})
-		var key_right_tick2=court.line(594,194,607.5,194).attr({'shape-rendering':'crispEdges'})
-		var key_left_tick3=court.line(306,248,292.5,248).attr({'shape-rendering':'crispEdges'})
-		var key_right_tick3=court.line(594,248,607.5,248).attr({'shape-rendering':'crispEdges'})
-		var key_left_tick4=court.line(306,302,292.5,302).attr({'shape-rendering':'crispEdges'})
-		var key_right_tick4=court.line(594,302,607.5,302).attr({'shape-rendering':'crispEdges'})
-		var left_threeline=court.line(94.5,50,94.5,144.5).attr({'shape-rendering':'crispEdges'})
-		var right_threeline=court.line(805.5,50,805.5,144.5).attr({'shape-rendering':'crispEdges'})
-		var baseline=court.line(0,50,900,50).attr({'shape-rendering':'crispEdges','stroke-width':2})
-
-		// arcs
-		var three_arc=court.path("M94.5,144.5A355.5,355.5 1 0,0 805.5,144.5")
-		var inner_ft_circle=court.path("M342,392A108,108 1 0,1 558,392").attr({ "stroke-dasharray" : [22.5,22.5]});
-		var outer_ft_circle=court.path("M342,392A108,108 1 0,0 558,392")
-		var hoop=court.circle(450,134.6,13.5)
-		var nocharge=court.path("M378,148.1A72,72 1 0,0 522,148.1")
-
-		//zones
-		left3zone=court.line(0,306,50,306).attr({'stroke-dasharray':[6,6],'stroke-width':1,stroke:'#000',opacity:.1,'shape-rendering':'crispEdges'})
-		right3zone=court.line(846,306,896,306).attr({'stroke-dasharray':[6,6],'stroke-width':1,stroke:'#000',opacity:.1,'shape-rendering':'crispEdges'})
-		longleftzone=court.line(50,306,306,306).attr({'stroke-dasharray':[6,6],'stroke-width':1,stroke:'#000',opacity:.1,'shape-rendering':'crispEdges'})
-		longrightzone=court.line(594,306,846,306).attr({'stroke-dasharray':[6,6],'stroke-width':1,stroke:'#000',opacity:.1,'shape-rendering':'crispEdges'})
-		longcenterzone1=court.line(306,392,306,485).attr({'stroke-dasharray':[6,6],'stroke-width':1,stroke:'#000',opacity:.1,'shape-rendering':'crispEdges'})
-		longcenterzone1=court.line(594,392,594,485).attr({'stroke-dasharray':[6,6],'stroke-width':1,stroke:'#000',opacity:.1,'shape-rendering':'crispEdges'})
-		leftarc=court.line(276,470,186,664).attr({'stroke-dasharray':[6,6],'stroke-width':1,stroke:'#000',opacity:.1,'shape-rendering':'crispEdges'})
-		rightarc=court.line(624,470,714,664).attr({'stroke-dasharray':[6,6],'stroke-width':1,stroke:'#000',opacity:.1,'shape-rendering':'crispEdges'})
-
-		// zonepaths
-		// left3zonepath=court.path('M54,50L0,50L0,306L89,306A396,396 0 0,1 54,144.5L54,50').attr({fill:'black',id:'zone'})
-		// right3zonepath=court.path('M846,50L900,50L900,306L811,306A396,396 1 0,0 846,144.5L846,50').attr({fill:'black',id:'zone'})
-		// leftlongzonepath=court.path('M54,144.5L54,50L306,50L306,306L89,306A396,396, 1 0,1 54,144.5').attr({fill:'black',id:'zone'})
-		// rightlongzonepath=court.path('M846,144.5L846,50L594,50L594,306L811,306A396,396, 1 0,0 846,144.5').attr({fill:'black',id:'zone'})
-		// keyzonepath=court.path('M306,50L306,392L594,392L594,50L306,50').attr({fill:'black',id:'zone'})
-		// longcenterzonepath=court.path('M594,515L594,392L306,392L306,515A396,396 1 0,0 594,515').attr({fill:'black',id:'zone'})
-		// insideleftarcpath=court.path('M89,306L306,306L306,515A396,396 1 0,1 89,306').attr({fill:'black',id:'zone'})
-		// insiderightarcpath=court.path('M811,306L594,306L594,515A396,396 1 0,0 811,306').attr({fill:'black',id:'zone'})
-		// leftarcpath=court.path('M269,497L186,664L0,664L0,306L89,306A396,396 0 0,0 269,497').attr({fill:'black',id:'zone'})
-		// rightarcpath=court.path('M631,497L714,664L900,664L900,306L811,306A396,396 0 0,1 631,497').attr({fill:'black',id:'zone'})
-		// centerarcpath=court.path('M269,497L186,664L714,664L631,497A396,396 0 0,1 269,497').attr({fill:'black',id:'zone'})
-
-		// grouping and applying attributes
-		courtlines=court.group(key_outer_left,key_outer_right,key_inner_left,key_inner_right,key_top,baseline_tick_left,baseline_tick_right,ft_tick_left,ft_tick_right,backboard,nocharge_tick_left,nocharge_tick_right,key_left_tick1,key_left_tick2,key_left_tick3,key_left_tick4,key_right_tick1,key_right_tick2,key_right_tick3,key_right_tick4,left_threeline,right_threeline,three_arc,inner_ft_circle,outer_ft_circle,hoop,nocharge,baseline)
-		courtlines.attr({stroke: "#000",fill: "none",strokeWidth:1})	
 	}
 
 	if(league==2 && parseInt(year)>2012){
@@ -661,6 +624,18 @@ function draw_base(year) {
 		leftarcpath=court.path('M269,497L186,664L0,664L0,306L89,306A396,396 0 0,0 269,497').attr({fill:'none',id:'zone'})
 		rightarcpath=court.path('M631,497L714,664L900,664L900,306L811,306A396,396 0 0,1 631,497').attr({fill:'none',id:'zone'})
 		centerarcpath=court.path('M269,497L186,664L714,664L631,497A396,396 0 0,1 269,497').attr({fill:'none',id:'zone'})
+
+		// x<=-220 and y<=87.5
+		// x>=220 and y<=87.5
+		// x>-220 and x<-80 and y<=87.5
+		// x<220 and x>80 and y<=87.5
+		// y<117.5 and x>=-80 and x<=80
+		// y>=117.5 and x>=-80 and x<=80 and (x^2 + y^2)<237.5^2
+		// y>87.5 and x<-80 and (x^2 + y^2)<237.5^2
+		// y>87.5 and x>80 and (x^2 + y^2)<237.5^2
+		// y>87.5 and (x^2 + y^2)>=237.5^2 and 
+		// y>87.5 and (x^2 + y^2)>=237.5^2 and 
+		// (x^2 + y^2)>=237.5^2
 
 		// grouping and applying attributes
 		courtlines=court.group(key_outer_left,key_outer_right,key_inner_left,key_inner_right,key_top,baseline_tick_left,baseline_tick_right,ft_tick_left,ft_tick_right,backboard,nocharge_tick_left,nocharge_tick_right,key_left_tick1,key_left_tick2,key_left_tick3,key_left_tick4,key_right_tick1,key_right_tick2,key_right_tick3,key_right_tick4,left_threeline,right_threeline,three_arc,inner_ft_circle,outer_ft_circle,hoop,nocharge,baseline)
@@ -741,19 +716,46 @@ window.onload=function() {
 		}
 	});
 
-    // dict={chart_type:'1',player1:'Dirk Nowitzki',year:'2011',efficiency:'FG',season:'Regular Season',quarter:'all',league:'1'}
-    league=2
+    dict={chart_type:'1',player1:'Dirk Nowitzki',year:'2011',efficiency:'FG',season:'Regular Season',quarter:'all',league:'1'}
+    // league=2
     // dict={chart_type:'1',player1:' Abby Bishop',year:'2015',efficiency:'FG',season:'Regular Season',quarter:'all',league:'2'}
-    dict={chart_type:'1',player1:' Alana Beard',year:'2012',efficiency:'FG',season:'Regular Season',quarter:'all',league:'2'}
+    // dict={chart_type:'1',player1:' Alana Beard',year:'2012',efficiency:'FG',season:'Regular Season',quarter:'all',league:'2'}
     load_pshotnew(dict)
 }
 
 function kobe_me() {
-	
+
+	year=Math.floor((Math.random() * 16) + 2001);
+	if (year==2016){year='career'} else{year=year.toString()}
+
+	seasontype=Math.floor((Math.random() * 2) + 1);
+	if(seasontype==1){seasontype='Regular Season'}
+	if(seasontype==2){seasontype='Playoffs'}
+
+	if(year==2004 || year==2013 || year==2014 || year==2015){seasontype='Regular Season'}
+
+	quarter=Math.floor((Math.random() * 10) + 1)
+	if(quarter<6){quarter='all'}
+	if(quarter==6){quarter='1'}
+	if(quarter==7){quarter='2'}
+	if(quarter==8){quarter='3'}
+	if(quarter==9){quarter='4'}
+	if(quarter==10){quarter='last4'}
+
+	dict={chart_type:'1',player1:'Kobe Bryant',year:year,efficiency:'FG',season:seasontype,quarter:quarter,league:'1'}
+	load_pshotnew(dict)
 }
 
 function savepng() {
+	var svg = document.getElementById('court')
+	var img = document.getElementById('png_save')
 
+	svg.toDataURL("image/png", {
+		callback: function(data) {
+			img.href=data
+			img.click()
+		}
+	})
 }
 
 function load_pshotnew(dict) {

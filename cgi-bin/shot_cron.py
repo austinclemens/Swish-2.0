@@ -457,6 +457,37 @@ def game_dates():
 # 		time.sleep(1)
 # 		get(url)
 
+def game_zones():
+
+	con=MySQLdb.connect(user=mysqlparam['user'],passwd=mysqlparam['passwd'],host=mysqlparam['host'],port=mysqlparam['port'],db=mysqlparam['db'])
+	cur=con.cursor()
+
+	# NBA zones
+	cur.execute("""UPDATE shots2 SET zone=1 WHERE x<=-220 AND y<=87.5""")
+	cur.execute("""UPDATE shots2 SET zone=2 WHERE x>=220 AND y<=87.5""")
+	cur.execute("""UPDATE shots2 SET zone=3 WHERE x>-220 AND x<-80 AND y<=87.5""")
+	cur.execute("""UPDATE shots2 SET zone=4 WHERE x<220 AND x>80 AND y<=87.5""")
+	cur.execute("""UPDATE shots2 SET zone=5 WHERE y<117.5 AND x>=-80 AND x<=80""")
+	cur.execute("""UPDATE shots2 SET zone=6 WHERE y>=117.5 AND x>=-80 AND x<=80 AND POWER(x,2)+POWER(y,2)<POWER(237.5,2)""")
+	cur.execute("""UPDATE shots2 SET zone=7 WHERE y>87.5 AND x<-80 AND POWER(x,2)+POWER(y,2)<POWER(237.5,2)""")
+	cur.execute("""UPDATE shots2 SET zone=8 WHERE y>87.5 AND x>80 AND POWER(x,2)+POWER(y,2)<POWER(237.5,2)""")
+	cur.execute("""UPDATE shots2 SET zone=9 WHERE """)
+	cur.execute("""UPDATE shots2 SET zone=10 WHERE """)
+	cur.execute("""UPDATE shots2 SET zone=11 WHERE """)
+
+	# DLeague zones
+	cur.execute("""UPDATE shots2_dleague SET zone=1 WHERE x<=-220 AND y<=87.5""")
+	cur.execute("""UPDATE shots2_dleague SET zone=2 WHERE x>=220 AND y<=87.5""")
+	cur.execute("""UPDATE shots2_dleague SET zone=3 WHERE x>-220 AND x<-80 AND y<=87.5""")
+	cur.execute("""UPDATE shots2_dleague SET zone=4 WHERE x<220 AND x>80 AND y<=87.5""")
+	cur.execute("""UPDATE shots2_dleague SET zone=5 WHERE y<117.5 AND x>=-80 AND x<=80""")
+	cur.execute("""UPDATE shots2_dleague SET zone=6 WHERE y>=117.5 AND x>=-80 AND x<=80 AND POWER(x,2)+POWER(y,2)<POWER(237.5,2)""")
+	cur.execute("""UPDATE shots2_dleague SET zone=7 WHERE y>87.5 AND x<-80 AND POWER(x,2)+POWER(y,2)<POWER(237.5,2)""")
+	cur.execute("""UPDATE shots2_dleague SET zone=8 WHERE y>87.5 AND x>80 AND POWER(x,2)+POWER(y,2)<POWER(237.5,2)""")
+	cur.execute("""UPDATE shots2_dleague SET zone=9 WHERE """)
+	cur.execute("""UPDATE shots2_dleague SET zone=10 WHERE """)
+	cur.execute("""UPDATE shots2_dleague SET zone=11 WHERE """)
+
 
 if local==0:
 	# START EXECUTING FUNCTIONS
@@ -511,6 +542,20 @@ if local==0:
 				writer=csv.writer(f)
 				for row in rows[:-1]:
 					writer.writerow(row)
+
+	# write career menu
+	cur.execute("""SELECT DISTINCT player FROM shots2""")
+	a=cur.fetchall()
+	print year,a
+	rows=[row[0] for row in a]
+	rows.sort()
+	rows=[[row] for row in rows]
+	if rows:
+		with open("/home/austinc/public_html/Swish2/menus_nba/players_Career.csv" % (year),'w') as f:
+			writer=csv.writer(f)
+			for row in rows[:-1]:
+				writer.writerow(row)
+
 
 	con=MySQLdb.connect(user=mysqlparam['user'],passwd=mysqlparam['passwd'],host=mysqlparam['host'],port=mysqlparam['port'],db=mysqlparam['db'])
 	cur=con.cursor()
@@ -594,6 +639,19 @@ if local==0:
 				for row in rows[:-1]:
 					writer.writerow(row)
 
+	con=MySQLdb.connect(user=mysqlparam['user'],passwd=mysqlparam['passwd'],host=mysqlparam['host'],port=mysqlparam['port'],db=mysqlparam['db'])
+	cur=con.cursor()
+	cur.execute("""SELECT DISTINCT offense_team FROM shots2""" % (year))
+	a=cur.fetchall()
+	rows=[row[0] for row in a]
+	rows.sort()
+	rows=[[row] for row in rows]
+	if rows:
+		with open("/home/austinc/public_html/Swish2/menus_nba/teams_Career.csv" % (year),'w') as f:
+			writer=csv.writer(f)
+			for row in rows[:-1]:
+				writer.writerow(row)
+
 	for year in range(nba_start_year,current_year+1,1):
 		con=MySQLdb.connect(user=mysqlparam['user'],passwd=mysqlparam['passwd'],host=mysqlparam['host'],port=mysqlparam['port'],db=mysqlparam['db'])
 		cur=con.cursor()
@@ -623,6 +681,7 @@ if local==0:
 					writer.writerow(row)
 
 	game_dates()
+	game_zones()
 
 	# Finished!
 	con.close()
