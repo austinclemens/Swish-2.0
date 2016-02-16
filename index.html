@@ -524,15 +524,13 @@ function draw_base(year) {
 		rightarc=court.line(654,522,714,664).attr({'stroke-dasharray':[6,6],'stroke-width':1,stroke:'#000',opacity:.1,'shape-rendering':'crispEdges'})
 
 
-		// 136.6,290    103.3,368.88
-		// -113.4,237.5     50.8,118.9
+		// -113.3,210    -146.7,288.6
+		// slope: -2.35
+		// b=-56.62
 
-		// rise: 118.6
-		// run: 164.2
-		// slope: .722
-
-		// 237.5=.722*-113.4+z - 81.87
-		// 118.9=.722*50.8+z - 82.2224
+		// 113.3,210	146.7,288.6
+		// slope=2.35
+		// b=56.62
 
 
 		// zonepaths
@@ -556,10 +554,9 @@ function draw_base(year) {
 		// y>=117.5 and x>=-80 and x<=80 and (x^2 + y^2)<237.5^2
 		// y>87.5 and x<-80 and (x^2 + y^2)<237.5^2
 		// y>87.5 and x>80 and (x^2 + y^2)<237.5^2
-		// y>87.5 and (x^2 + y^2)>=237.5^2 and 
-		// y>87.5 and (x^2 + y^2)>=237.5^2 and 
-		// (x^2 + y^2)>=237.5^2
-
+		// y>87.5 and (x^2 + y^2)>=237.5^2 and y>(-2.35*x)-56.62
+		// y>87.5 and (x^2 + y^2)>=237.5^2 and y<(2.35*x)-56.62
+		// (x^2 + y^2)>=237.5^2 and y<=(-2.35*x)-56.62 and y>=(2.35*x)-56.62
 
 		// grouping and applying attributes
 		courtlines=court.group(key_outer_left,key_outer_right,key_inner_left,key_inner_right,key_top,baseline_tick_left,baseline_tick_right,ft_tick_left,ft_tick_right,backboard,nocharge_tick_left,nocharge_tick_right,key_left_tick1,key_left_tick2,key_left_tick3,key_left_tick4,key_right_tick1,key_right_tick2,key_right_tick3,key_right_tick4,left_threeline,right_threeline,three_arc,inner_ft_circle,outer_ft_circle,hoop,nocharge,baseline)
