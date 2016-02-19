@@ -523,16 +523,6 @@ function draw_base(year) {
 		leftarc=court.line(246,522,186,664).attr({'stroke-dasharray':[6,6],'stroke-width':1,stroke:'#000',opacity:.1,'shape-rendering':'crispEdges'})
 		rightarc=court.line(654,522,714,664).attr({'stroke-dasharray':[6,6],'stroke-width':1,stroke:'#000',opacity:.1,'shape-rendering':'crispEdges'})
 
-
-		// -113.3,210    -146.7,288.6
-		// slope: -2.35
-		// b=-56.62
-
-		// 113.3,210	146.7,288.6
-		// slope=2.35
-		// b=56.62
-
-
 		// zonepaths
 		left3zonepath=court.path('M0,50L0,306L54,306L54,50L0,50').attr({fill:'none',id:'zone'})
 		right3zonepath=court.path('M846,50L846,306L900,306L900,50L846,50').attr({fill:'none',id:'zone'})
@@ -554,9 +544,9 @@ function draw_base(year) {
 		// y>=117.5 and x>=-80 and x<=80 and (x^2 + y^2)<237.5^2
 		// y>87.5 and x<-80 and (x^2 + y^2)<237.5^2
 		// y>87.5 and x>80 and (x^2 + y^2)<237.5^2
-		// y>87.5 and (x^2 + y^2)>=237.5^2 and y>(-2.35*x)-56.62
+		// y>87.5 and (x^2 + y^2)>=237.5^2 and y<(-2.35*x)-56.62
 		// y>87.5 and (x^2 + y^2)>=237.5^2 and y<(2.35*x)-56.62
-		// (x^2 + y^2)>=237.5^2 and y<=(-2.35*x)-56.62 and y>=(2.35*x)-56.62
+		// (x^2 + y^2)>=237.5^2 and y>=(-2.35*x)-56.62 and y>=(2.35*x)-56.62
 
 		// grouping and applying attributes
 		courtlines=court.group(key_outer_left,key_outer_right,key_inner_left,key_inner_right,key_top,baseline_tick_left,baseline_tick_right,ft_tick_left,ft_tick_right,backboard,nocharge_tick_left,nocharge_tick_right,key_left_tick1,key_left_tick2,key_left_tick3,key_left_tick4,key_right_tick1,key_right_tick2,key_right_tick3,key_right_tick4,left_threeline,right_threeline,three_arc,inner_ft_circle,outer_ft_circle,hoop,nocharge,baseline)
@@ -622,17 +612,17 @@ function draw_base(year) {
 		rightarcpath=court.path('M631,497L714,664L900,664L900,306L811,306A396,396 0 0,1 631,497').attr({fill:'none',id:'zone'})
 		centerarcpath=court.path('M269,497L186,664L714,664L631,497A396,396 0 0,1 269,497').attr({fill:'none',id:'zone'})
 
-		// x<=-220 and y<=87.5
-		// x>=220 and y<=87.5
+		// (x<=-220 and y<=0) or ((x^2 + y^2)<220^2 and y<=87.5)
+		// (x<=-220 and y<=0) or ((x^2 + y^2)<220^2 and y<=87.5)
 		// x>-220 and x<-80 and y<=87.5
 		// x<220 and x>80 and y<=87.5
 		// y<117.5 and x>=-80 and x<=80
-		// y>=117.5 and x>=-80 and x<=80 and (x^2 + y^2)<237.5^2
-		// y>87.5 and x<-80 and (x^2 + y^2)<237.5^2
-		// y>87.5 and x>80 and (x^2 + y^2)<237.5^2
-		// y>87.5 and (x^2 + y^2)>=237.5^2 and 
-		// y>87.5 and (x^2 + y^2)>=237.5^2 and 
-		// (x^2 + y^2)>=237.5^2
+		// y>=117.5 and x>=-80 and x<=80 and (x^2 + y^2)<220^2
+		// y>87.5 and x<-80 and (x^2 + y^2)<220^2
+		// y>87.5 and x>80 and (x^2 + y^2)<220^2
+		// y>87.5 and (x^2 + y^2)>=220^2 and y<(-2.05*x)-11.72
+		// y>87.5 and (x^2 + y^2)>=220^2 and y<(2.05*x)-11.72
+		// (x^2 + y^2)>=220^2 and y>=(-2.05*x)-11.72 and y>=(2.05*x)-11.72
 
 		// grouping and applying attributes
 		courtlines=court.group(key_outer_left,key_outer_right,key_inner_left,key_inner_right,key_top,baseline_tick_left,baseline_tick_right,ft_tick_left,ft_tick_right,backboard,nocharge_tick_left,nocharge_tick_right,key_left_tick1,key_left_tick2,key_left_tick3,key_left_tick4,key_right_tick1,key_right_tick2,key_right_tick3,key_right_tick4,left_threeline,right_threeline,three_arc,inner_ft_circle,outer_ft_circle,hoop,nocharge,baseline)
@@ -766,8 +756,9 @@ function load_pshotnew(dict) {
 			datatype: "html",
 			data:   dict,
 			success: function(response){
+				console.log(response)
 				var shot_data = eval("(" + response + ")");
-				// console.log(shot_data)
+				console.log(shot_data)
 				if(shot_data['rows']==0){
 					alert('No data!')
 					g.animate({opacity: 0},200);

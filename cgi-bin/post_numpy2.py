@@ -32,8 +32,8 @@ def circle_chunk(shots_temp,efficiency,average_data):
 	lenc=len
 	sumc=sum
 
-	c1=((shots_temp[:,3:4]-x_center)**2)+((shots_temp[:,2:3]-y_center)**2)
-	shots_temp=concatenate((shots_temp,sqrt(c1.reshape(lenc(c1),1))),axis=1)
+	# c1=((shots_temp[:,3:4]-x_center)**2)+((shots_temp[:,2:3]-y_center)**2)
+	# shots_temp=concatenate((shots_temp,sqrt(c1.reshape(lenc(c1),1))),axis=1)
 
 	for i,box in enumerate(box_matrix):
 		# box_matrix is all 1,600 court locations. Get x and y centers by adding 5 to upper left corner of box.
@@ -42,10 +42,10 @@ def circle_chunk(shots_temp,efficiency,average_data):
 		num_shots=lenc(shots_temp[shots_temp[:,5]==i])
 		# get number of shots from the box and skip all the hard math if there are no shots in the box.
 		if num_shots>0:		
-			# manip=shots_temp.copy()
+			manip=shots_temp.copy()
 			# c1 - vector of distances to box center
-			# c1=((manip[:,3:4]-x_center)**2)+((manip[:,2:3]-y_center)**2)
-			# manip=concatenate((manip,sqrt(c1.reshape(lenc(c1),1))),axis=1)
+			c1=((manip[:,3:4]-x_center)**2)+((manip[:,2:3]-y_center)**2)
+			manip=concatenate((manip,sqrt(c1.reshape(lenc(c1),1))),axis=1)
 			# eliminate all shots >3 feet away.
 			manip=shots_temp[shots_temp[:,-1]<30]
 
@@ -82,7 +82,7 @@ def circle_chunk(shots_temp,efficiency,average_data):
 	for zone in range(1,12,1):
 		manip=shots_temp[shots_temp[:,4]==zone]
 		made=lenc(manip[manip[:,1]==1])
-		zone_output.append(str(zone):[lenc(manip),made/lenc(manip)])
+		zone_output[str(zone)]=[lenc(manip),made/lenc(manip)]
 
 	return [output,zone_output]
 
@@ -98,7 +98,7 @@ quarter=data.getfirst('quarter')
 startdate=data.getfirst('startdate')
 enddate=data.getfirst('enddate')
 team=data.getfirst('team')
-offense_defense=int(data.getfirst('side'))
+offense_defense=data.getfirst('side')
 chart_type=data.getfirst('chart_type')
 hide=data.getfirst('hide')
 league=data.getfirst('league')
