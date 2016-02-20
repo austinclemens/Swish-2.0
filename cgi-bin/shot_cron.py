@@ -463,46 +463,46 @@ def game_zones():
 	cur=con.cursor()
 
 	# NBA zones
-	cur.execute("""UPDATE shots2 SET zone=1 WHERE x<=-220 AND y<=87.5""")
-	cur.execute("""UPDATE shots2 SET zone=2 WHERE x>=220 AND y<=87.5""")
-	cur.execute("""UPDATE shots2 SET zone=3 WHERE x>-220 AND x<-80 AND y<=87.5""")
-	cur.execute("""UPDATE shots2 SET zone=4 WHERE x<220 AND x>80 AND y<=87.5""")
+	cur.execute("""UPDATE shots2 SET zone=1 WHERE x<=-220 AND y<=84.7""")
+	cur.execute("""UPDATE shots2 SET zone=2 WHERE x>=220 AND y<=84.7""")
+	cur.execute("""UPDATE shots2 SET zone=3 WHERE x>-220 AND x<-80 AND y<=84.7""")
+	cur.execute("""UPDATE shots2 SET zone=4 WHERE x<220 AND x>80 AND y<=84.7""")
 	cur.execute("""UPDATE shots2 SET zone=5 WHERE y<117.5 AND x>=-80 AND x<=80""")
 	cur.execute("""UPDATE shots2 SET zone=6 WHERE y>=117.5 AND x>=-80 AND x<=80 AND POWER(x,2)+POWER(y,2)<POWER(237.5,2)""")
-	cur.execute("""UPDATE shots2 SET zone=7 WHERE y>87.5 AND x<-80 AND POWER(x,2)+POWER(y,2)<POWER(237.5,2)""")
-	cur.execute("""UPDATE shots2 SET zone=8 WHERE y>87.5 AND x>80 AND POWER(x,2)+POWER(y,2)<POWER(237.5,2)""")
-	cur.execute("""UPDATE shots2 SET zone=9 WHERE y>87.5 AND POWER(x,2)+POWER(y,2)>=POWER(237.5,2) AND y<(-2.35*x)-56.62""")
-	cur.execute("""UPDATE shots2 SET zone=10 WHERE y>87.5 AND POWER(x,2)+POWER(y,2)>=POWER(237.5,2) AND y<(2.35*x)-56.62""")
+	cur.execute("""UPDATE shots2 SET zone=7 WHERE y>84.7 AND x<-80 AND POWER(x,2)+POWER(y,2)<POWER(237.5,2)""")
+	cur.execute("""UPDATE shots2 SET zone=8 WHERE y>84.7 AND x>80 AND POWER(x,2)+POWER(y,2)<POWER(237.5,2)""")
+	cur.execute("""UPDATE shots2 SET zone=9 WHERE y>84.7 AND POWER(x,2)+POWER(y,2)>=POWER(237.5,2) AND y<(-2.35*x)-56.62""")
+	cur.execute("""UPDATE shots2 SET zone=10 WHERE y>84.7 AND POWER(x,2)+POWER(y,2)>=POWER(237.5,2) AND y<(2.35*x)-56.62""")
 	cur.execute("""UPDATE shots2 SET zone=11 WHERE POWER(x,2)+POWER(y,2)>=POWER(237.5,2) AND y>=(-2.35*x)-56.62 AND y>=(2.35*x)-56.62""")
 
 	print 'NBA zones done'
 
 	# DLeague zones
-	cur.execute("""UPDATE shots2_dleague SET zone=1 WHERE x<=-220 AND y<=87.5""")
-	cur.execute("""UPDATE shots2_dleague SET zone=2 WHERE x>=220 AND y<=87.5""")
-	cur.execute("""UPDATE shots2_dleague SET zone=3 WHERE x>-220 AND x<-80 AND y<=87.5""")
-	cur.execute("""UPDATE shots2_dleague SET zone=4 WHERE x<220 AND x>80 AND y<=87.5""")
+	cur.execute("""UPDATE shots2_dleague SET zone=1 WHERE x<=-220 AND y<=84.7""")
+	cur.execute("""UPDATE shots2_dleague SET zone=2 WHERE x>=220 AND y<=84.7""")
+	cur.execute("""UPDATE shots2_dleague SET zone=3 WHERE x>-220 AND x<-80 AND y<=84.7""")
+	cur.execute("""UPDATE shots2_dleague SET zone=4 WHERE x<220 AND x>80 AND y<=84.7""")
 	cur.execute("""UPDATE shots2_dleague SET zone=5 WHERE y<117.5 AND x>=-80 AND x<=80""")
 	cur.execute("""UPDATE shots2_dleague SET zone=6 WHERE y>=117.5 AND x>=-80 AND x<=80 AND POWER(x,2)+POWER(y,2)<POWER(237.5,2)""")
-	cur.execute("""UPDATE shots2_dleague SET zone=7 WHERE y>87.5 AND x<-80 AND POWER(x,2)+POWER(y,2)<POWER(237.5,2)""")
-	cur.execute("""UPDATE shots2_dleague SET zone=8 WHERE y>87.5 AND x>80 AND POWER(x,2)+POWER(y,2)<POWER(237.5,2)""")
-	cur.execute("""UPDATE shots2_dleague SET zone=9 WHERE y>87.5 AND POWER(x,2)+POWER(y,2)>=POWER(237.5,2) AND y<(-2.35*x)-56.62""")
-	cur.execute("""UPDATE shots2_dleague SET zone=10 WHERE y>87.5 AND POWER(x,2)+POWER(y,2)>=POWER(237.5,2) AND y<(2.35*x)-56.62""")
+	cur.execute("""UPDATE shots2_dleague SET zone=7 WHERE y>84.7 AND x<-80 AND POWER(x,2)+POWER(y,2)<POWER(237.5,2)""")
+	cur.execute("""UPDATE shots2_dleague SET zone=8 WHERE y>84.7 AND x>80 AND POWER(x,2)+POWER(y,2)<POWER(237.5,2)""")
+	cur.execute("""UPDATE shots2_dleague SET zone=9 WHERE y>84.7 AND POWER(x,2)+POWER(y,2)>=POWER(237.5,2) AND y<(-2.35*x)-56.62""")
+	cur.execute("""UPDATE shots2_dleague SET zone=10 WHERE y>84.7 AND POWER(x,2)+POWER(y,2)>=POWER(237.5,2) AND y<(2.35*x)-56.62""")
 	cur.execute("""UPDATE shots2_dleague SET zone=11 WHERE POWER(x,2)+POWER(y,2)>=POWER(237.5,2) AND y>=(-2.35*x)-56.62 AND y>=(2.35*x)-56.62""")
 
 	print 'Dleague zones done'
 
 	# WNBA zones
-	cur.execute("""UPDATE shots2_wnba SET zone=1 WHERE (x<=-220 AND y<=0) OR (POWER(x,2)+POWER(y,2)>POWER(220,2) AND y<=87.5 AND x<0)""")
-	cur.execute("""UPDATE shots2_wnba SET zone=2 WHERE (x>=220 AND y<=0) OR (POWER(x,2)+POWER(y,2)>POWER(220,2) AND y<=87.5 AND x>0)""")
-	cur.execute("""UPDATE shots2_wnba SET zone=3 WHERE x>-220 AND x<-80 AND y<=87.5""")
-	cur.execute("""UPDATE shots2_wnba SET zone=4 WHERE x<220 AND x>80 AND y<=87.5""")
+	cur.execute("""UPDATE shots2_wnba SET zone=1 WHERE (x<=-220 AND y<=0) OR (POWER(x,2)+POWER(y,2)>POWER(220,2) AND y<=84.7 AND x<0)""")
+	cur.execute("""UPDATE shots2_wnba SET zone=2 WHERE (x>=220 AND y<=0) OR (POWER(x,2)+POWER(y,2)>POWER(220,2) AND y<=84.7 AND x>0)""")
+	cur.execute("""UPDATE shots2_wnba SET zone=3 WHERE x>-220 AND x<-80 AND y<=84.7""")
+	cur.execute("""UPDATE shots2_wnba SET zone=4 WHERE x<220 AND x>80 AND y<=84.7""")
 	cur.execute("""UPDATE shots2_wnba SET zone=5 WHERE y<117.5 AND x>=-80 AND x<=80""")
 	cur.execute("""UPDATE shots2_wnba SET zone=6 WHERE y>=117.5 AND x>=-80 AND x<=80 AND POWER(x,2)+POWER(y,2)<POWER(220,2)""")
-	cur.execute("""UPDATE shots2_wnba SET zone=7 WHERE y>87.5 AND x<-80 AND POWER(x,2)+POWER(y,2)<POWER(220,2)""")
-	cur.execute("""UPDATE shots2_wnba SET zone=8 WHERE y>87.5 AND x>80 AND POWER(x,2)+POWER(y,2)<POWER(220,2)""")
-	cur.execute("""UPDATE shots2_wnba SET zone=9 WHERE y>87.5 AND POWER(x,2)+POWER(y,2)>=POWER(220,2) AND y<(-2.05*x)-11.72""")
-	cur.execute("""UPDATE shots2_wnba SET zone=10 WHERE y>87.5 AND POWER(x,2)+POWER(y,2)>=POWER(220,2) AND y<(2.05*x)-11.72""")
+	cur.execute("""UPDATE shots2_wnba SET zone=7 WHERE y>84.7 AND x<-80 AND POWER(x,2)+POWER(y,2)<POWER(220,2)""")
+	cur.execute("""UPDATE shots2_wnba SET zone=8 WHERE y>84.7 AND x>80 AND POWER(x,2)+POWER(y,2)<POWER(220,2)""")
+	cur.execute("""UPDATE shots2_wnba SET zone=9 WHERE y>84.7 AND POWER(x,2)+POWER(y,2)>=POWER(220,2) AND y<(-2.05*x)-11.72""")
+	cur.execute("""UPDATE shots2_wnba SET zone=10 WHERE y>84.7 AND POWER(x,2)+POWER(y,2)>=POWER(220,2) AND y<(2.05*x)-11.72""")
 	cur.execute("""UPDATE shots2_wnba SET zone=11 WHERE POWER(x,2)+POWER(y,2)>=POWER(220,2) AND y>=(-2.05*x)-11.72 AND y>=(2.05*x)-11.72""")
 
 	print 'WNBA zones done'
@@ -520,17 +520,17 @@ def game_zones():
 if local==1:
 	# START EXECUTING FUNCTIONS
 	# Get all shots for all leagues
-	# try:
-	# 	get_nba_shots()
-	# except Exception,e: print str(e)
+	try:
+		get_nba_shots()
+	except Exception,e: print str(e)
 
-	# try:
-	# 	get_wnba_shots()
-	# except Exception,e: print str(e)
+	try:
+		get_wnba_shots()
+	except Exception,e: print str(e)
 	
-	# try:
-	# 	get_dleague_shots()
-	# except Exception,e: print str(e)
+	try:
+		get_dleague_shots()
+	except Exception,e: print str(e)
 
 	game_dates()
 	game_zones()
