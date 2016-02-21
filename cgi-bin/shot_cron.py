@@ -293,11 +293,22 @@ def get_dleague_shots():
 def nba_averages(year):
 	con=MySQLdb.connect(user=mysqlparam['user'],passwd=mysqlparam['passwd'],host=mysqlparam['host'],port=mysqlparam['port'],db=mysqlparam['db'])
 	cur=con.cursor()
-	cur.execute("""SELECT three,made,x,y FROM shots2 WHERE year=%s""" % (year))
+	cur.execute("""SELECT three,made,x,y,zone FROM shots2 WHERE year=%s""" % (year))
 	rows=cur.fetchall()
 	con.close()
 
 	year_average=chart(rows)
+	year_average.append(len([row for row in rows if row[4]==1 and row[1]==1])/len([row for row in rows if row[4]==1]))
+	year_average.append(len([row for row in rows if row[4]==2 and row[1]==1])/len([row for row in rows if row[4]==2]))
+	year_average.append(len([row for row in rows if row[4]==3 and row[1]==1])/len([row for row in rows if row[4]==3]))
+	year_average.append(len([row for row in rows if row[4]==4 and row[1]==1])/len([row for row in rows if row[4]==4]))
+	year_average.append(len([row for row in rows if row[4]==5 and row[1]==1])/len([row for row in rows if row[4]==5]))
+	year_average.append(len([row for row in rows if row[4]==6 and row[1]==1])/len([row for row in rows if row[4]==6]))
+	year_average.append(len([row for row in rows if row[4]==7 and row[1]==1])/len([row for row in rows if row[4]==7]))
+	year_average.append(len([row for row in rows if row[4]==8 and row[1]==1])/len([row for row in rows if row[4]==8]))
+	year_average.append(len([row for row in rows if row[4]==9 and row[1]==1])/len([row for row in rows if row[4]==9]))
+	year_average.append(len([row for row in rows if row[4]==10 and row[1]==1])/len([row for row in rows if row[4]==10]))
+	year_average.append(len([row for row in rows if row[4]==11 and row[1]==1])/len([row for row in rows if row[4]==11]))
 	with open("/home/austinc/public_html/Swish2/averages_nba/average_%s.csv" % (year),'w') as f:
 		writer=csv.writer(f)
 		for row in year_average:
@@ -306,12 +317,22 @@ def nba_averages(year):
 def wnba_averages(year):
 	con=MySQLdb.connect(user=mysqlparam['user'],passwd=mysqlparam['passwd'],host=mysqlparam['host'],port=mysqlparam['port'],db=mysqlparam['db'])
 	cur=con.cursor()
-	cur.execute("""SELECT three,made,x,y FROM shots2_wnba WHERE year=%s""" % (year))
+	cur.execute("""SELECT three,made,x,y,zone FROM shots2_wnba WHERE year=%s""" % (year))
 	rows=cur.fetchall()
 	con.close()
 
-	print year,len(rows)
 	year_average=chart(rows)
+	year_average.append(len([row for row in rows if row[4]==1 and row[1]==1])/len([row for row in rows if row[4]==1]))
+	year_average.append(len([row for row in rows if row[4]==2 and row[1]==1])/len([row for row in rows if row[4]==2]))
+	year_average.append(len([row for row in rows if row[4]==3 and row[1]==1])/len([row for row in rows if row[4]==3]))
+	year_average.append(len([row for row in rows if row[4]==4 and row[1]==1])/len([row for row in rows if row[4]==4]))
+	year_average.append(len([row for row in rows if row[4]==5 and row[1]==1])/len([row for row in rows if row[4]==5]))
+	year_average.append(len([row for row in rows if row[4]==6 and row[1]==1])/len([row for row in rows if row[4]==6]))
+	year_average.append(len([row for row in rows if row[4]==7 and row[1]==1])/len([row for row in rows if row[4]==7]))
+	year_average.append(len([row for row in rows if row[4]==8 and row[1]==1])/len([row for row in rows if row[4]==8]))
+	year_average.append(len([row for row in rows if row[4]==9 and row[1]==1])/len([row for row in rows if row[4]==9]))
+	year_average.append(len([row for row in rows if row[4]==10 and row[1]==1])/len([row for row in rows if row[4]==10]))
+	year_average.append(len([row for row in rows if row[4]==11 and row[1]==1])/len([row for row in rows if row[4]==11]))
 	with open("/home/austinc/public_html/Swish2/averages_wnba/average_%s.csv" % (year),'w') as f:
 		writer=csv.writer(f)
 		for row in year_average:
@@ -320,11 +341,22 @@ def wnba_averages(year):
 def dleague_averages(year):
 	con=MySQLdb.connect(user=mysqlparam['user'],passwd=mysqlparam['passwd'],host=mysqlparam['host'],port=mysqlparam['port'],db=mysqlparam['db'])
 	cur=con.cursor()
-	cur.execute("""SELECT three,made,x,y FROM shots2_dleague WHERE year=%s""" % (year))
+	cur.execute("""SELECT three,made,x,y,zone FROM shots2_dleague WHERE year=%s""" % (year))
 	rows=cur.fetchall()
 	con.close()
 
 	year_average=chart(rows)
+	year_average.append(len([row for row in rows if row[4]==1 and row[1]==1])/len([row for row in rows if row[4]==1]))
+	year_average.append(len([row for row in rows if row[4]==2 and row[1]==1])/len([row for row in rows if row[4]==2]))
+	year_average.append(len([row for row in rows if row[4]==3 and row[1]==1])/len([row for row in rows if row[4]==3]))
+	year_average.append(len([row for row in rows if row[4]==4 and row[1]==1])/len([row for row in rows if row[4]==4]))
+	year_average.append(len([row for row in rows if row[4]==5 and row[1]==1])/len([row for row in rows if row[4]==5]))
+	year_average.append(len([row for row in rows if row[4]==6 and row[1]==1])/len([row for row in rows if row[4]==6]))
+	year_average.append(len([row for row in rows if row[4]==7 and row[1]==1])/len([row for row in rows if row[4]==7]))
+	year_average.append(len([row for row in rows if row[4]==8 and row[1]==1])/len([row for row in rows if row[4]==8]))
+	year_average.append(len([row for row in rows if row[4]==9 and row[1]==1])/len([row for row in rows if row[4]==9]))
+	year_average.append(len([row for row in rows if row[4]==10 and row[1]==1])/len([row for row in rows if row[4]==10]))
+	year_average.append(len([row for row in rows if row[4]==11 and row[1]==1])/len([row for row in rows if row[4]==11]))
 	with open("/home/austinc/public_html/Swish2/averages_dleague/average_%s.csv" % (year),'w') as f:
 		writer=csv.writer(f)
 		for row in year_average:
