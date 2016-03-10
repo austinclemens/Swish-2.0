@@ -4,6 +4,7 @@ import cgi
 import MySQLdb
 from json import dumps
 import csv
+import datetime
 from numpy import logical_and, logical_or, concatenate, sqrt, array, sum, empty
 # import cgitb
 
@@ -86,12 +87,13 @@ def circle_chunk(shots_temp,efficiency,average_data):
 	
 	zone_output={}
 	for zone in range(1,12,1):
+		print zone
 		manip=shots_temp[shots_temp[:,4]==zone]
 		made=lenc(manip[manip[:,1]==1])
 		try:
-			zone_output[str(zone)]=[lenc(manip),made/lenc(manip)]
+			zone_output[str(zone)]=[lenc(manip),made/lenc(manip),(made/lenc(manip))-float(average_data[1600+zone-1][0])]
 		except:
-			zone_output[str(zone)]=0
+			zone_output[str(zone)]=[0,0,0]
 
 	return [output,zone_output]
 
@@ -111,12 +113,13 @@ offense_defense=data.getfirst('side')
 chart_type=data.getfirst('chart_type')
 hide=data.getfirst('hide')
 league=data.getfirst('league')
+custom=data.getfirst('custom')
 
 if chart_type==None:
 #     dict={chart_type:'1',player1:'Dirk Nowitzki',year:'2011',efficiency:'FG',season:'Regular Season',quarter:'all',league:'1'}
 	chart_type=1
 	player1="DeAndre Jordan"
-	year="2015"
+	year="Career"
 	efficiency='FG'
 	season="Regular Season"
 	quarter='all'
@@ -183,10 +186,10 @@ if int(chart_type)==3:
 if int(chart_type)==1:
 	append=''
 	post_append=''
-	if year=='career':
+	if year=='Career':
 		string='player="%s" AND season_type="%s"' % (player1,season2)
 		year2='career'
-	if year!='career':
+	if year!='Career':
 		string='player="%s" AND year=%s AND season_type=%s' % (player1, int(year), int(season2))
 		year3="%02d" % (int(year[2:4])+1,)
 		year2=year+'-'+year3[-2:]
@@ -219,10 +222,13 @@ else:
 # print """SELECT three,made,x,y FROM %s WHERE %s""" % (table,string+append)
 
 cur=con.cursor()
-if startdate==None or enddate==None:
-	cur.execute("""SELECT three,made,x,y,zone,shotzone FROM %s WHERE shotzone!=0 AND %s""" % (table,string+append))
-if startdate!=None and enddate!=None:
-	cur.execute("SELECT three,made,x,y,zone,shotzone FROM %s "+pre_append+" WHERE shotzone!=0 AND %s" % (table,string))
+if custom=='0':
+	if startdate==None or enddate==None:
+		cur.execute("""SELECT three,made,x,y,zone,shotzone FROM %s WHERE %s""" % (table,string+append))
+	if startdate!=None and enddate!=None:
+		cur.execute("SELECT three,made,x,y,zone,shotzone FROM %s "+pre_append+" WHERE %s" % (table,string))
+if custom=='1':
+	cur.execute("""SELECT three,made,x,y,zone,shotzone FROM shots2 WHERE player='Stephen Curry' & made=1 & """)
 
 rows=cur.fetchall()
 con.close()
@@ -236,37 +242,37 @@ details=details+', %s shots' % (shotnum)
 # 	shotnum=int(round(len(rows)/100)*100)
 # 	details=details+', about %s shots' % (shotnum)
 
-if year=='career':
+if year=='Career':
 	current=datetime.date.today().year
 	if datetime.date.today().month<8:
-		current=year-1
+		current=current-1
 
 	if league=='1':
-		with open("../Swish2/averages_nba/average_"+current+".csv",'rb') as cfile:
+		with open("../shotcharts/averages_nba/average_"+str(current)+".csv",'rb') as cfile:
 			reader=csv.reader(cfile)
 			average_csv=[row for row in reader]
 	if league=='2':
-		with open("../Swish2/averages_wnba/average_"+current+".csv",'rb') as cfile:
+		with open("../shotcharts/averages_wnba/average_"+str(current)+".csv",'rb') as cfile:
 			reader=csv.reader(cfile)
 			average_csv=[row for row in reader]
 	if league=='3':
-		with open("../Swish2/averages_dleague/average_"+current+".csv",'rb') as cfile:
+		with open("../shotcharts/averages_dleague/average_"+str(current)+".csv",'rb') as cfile:
 			reader=csv.reader(cfile)
 			average_csv=[row for row in reader]
 	
 
-if year!='career':
+if year!='Career':
 	if league=='1':
-		with open("../Swish2/averages_nba/average_%s.csv" % (year),'rb') as cfile:
+		with open("../shotcharts/averages_nba/average_%s.csv" % (year),'rb') as cfile:
 		# with open("/Users/austinc/Desktop/Swish2/averages_nba/average_%s.csv" % (year),'rb') as cfile:
 			reader=csv.reader(cfile)
 			average_csv=[row for row in reader]
 	if league=='2':
-		with open("../Swish2/averages_wnba/average_%s.csv" % (year),'rb') as cfile:
+		with open("../shotcharts/averages_wnba/average_%s.csv" % (year),'rb') as cfile:
 			reader=csv.reader(cfile)
 			average_csv=[row for row in reader]
 	if league=='3':
-		with open("../Swish2/averages_dleague/average_%s.csv" % (year),'rb') as cfile:
+		with open("../shotcharts/averages_dleague/average_%s.csv" % (year),'rb') as cfile:
 			reader=csv.reader(cfile)
 			average_csv=[row for row in reader]
 	# with open("../Swish2/averages_nba/average_%s.csv" % (year),'rb') as cfile:
@@ -292,54 +298,56 @@ else:
 	results_csv['under100']=1
 	results_csv['zones']={}
 	try:
-		results_csv['zones']['1']=[len([row for row in results_csv['chart'] if row[-2]==1]),len([row for row in results_csv['chart'] if row[-2]==1 and row[1]==1])/len([row for row in results_csv['chart'] if row[-2]==1])]
+		results_csv['zones']['1']=[len([row for row in results_csv['chart'] if row[-2]==1]),len([row for row in results_csv['chart'] if row[-2]==1 and row[1]==1])/len([row for row in results_csv['chart'] if row[-2]==1]),(len([row for row in results_csv['chart'] if row[-2]==1 and row[1]==1])/len([row for row in results_csv['chart'] if row[-2]==1]))-float(average_csv[1600][0])]
 	except:
-		results_csv['zones']['1']=[0,0]
+		results_csv['zones']['1']=[0,0,0]
 	try:
-		results_csv['zones']['2']=[len([row for row in results_csv['chart'] if row[-2]==2]),len([row for row in results_csv['chart'] if row[-2]==2 and row[1]==1])/len([row for row in results_csv['chart'] if row[-2]==2])]
+		results_csv['zones']['2']=[len([row for row in results_csv['chart'] if row[-2]==2]),len([row for row in results_csv['chart'] if row[-2]==2 and row[1]==1])/len([row for row in results_csv['chart'] if row[-2]==2]),(len([row for row in results_csv['chart'] if row[-2]==2 and row[1]==1])/len([row for row in results_csv['chart'] if row[-2]==2]))-float(average_csv[1600][0])]
 	except:
-		results_csv['zones']['2']=[0,0]
+		results_csv['zones']['2']=[0,0,0]
 	try:
-		results_csv['zones']['3']=[len([row for row in results_csv['chart'] if row[-2]==3]),len([row for row in results_csv['chart'] if row[-2]==3 and row[1]==1])/len([row for row in results_csv['chart'] if row[-2]==3])]
+		results_csv['zones']['3']=[len([row for row in results_csv['chart'] if row[-2]==3]),len([row for row in results_csv['chart'] if row[-2]==3 and row[1]==1])/len([row for row in results_csv['chart'] if row[-2]==3]),(len([row for row in results_csv['chart'] if row[-2]==3 and row[1]==1])/len([row for row in results_csv['chart'] if row[-2]==3]))-float(average_csv[1600][0])]
 	except:
-		results_csv['zones']['3']=[0,0]
+		results_csv['zones']['3']=[0,0,0]
 	try:
-		results_csv['zones']['4']=[len([row for row in results_csv['chart'] if row[-2]==4]),len([row for row in results_csv['chart'] if row[-2]==4 and row[1]==1])/len([row for row in results_csv['chart'] if row[-2]==4])]
+		results_csv['zones']['4']=[len([row for row in results_csv['chart'] if row[-2]==4]),len([row for row in results_csv['chart'] if row[-2]==4 and row[1]==1])/len([row for row in results_csv['chart'] if row[-2]==4]),(len([row for row in results_csv['chart'] if row[-2]==4 and row[1]==1])/len([row for row in results_csv['chart'] if row[-2]==4]))-float(average_csv[1600][0])]
 	except:
-		results_csv['zones']['4']=[0,0]
+		results_csv['zones']['4']=[0,0,0]
 	try:
-		results_csv['zones']['5']=[len([row for row in results_csv['chart'] if row[-2]==5]),len([row for row in results_csv['chart'] if row[-2]==5 and row[1]==1])/len([row for row in results_csv['chart'] if row[-2]==5])]
+		results_csv['zones']['5']=[len([row for row in results_csv['chart'] if row[-2]==5]),len([row for row in results_csv['chart'] if row[-2]==5 and row[1]==1])/len([row for row in results_csv['chart'] if row[-2]==5]),(len([row for row in results_csv['chart'] if row[-2]==5 and row[1]==1])/len([row for row in results_csv['chart'] if row[-2]==5]))-float(average_csv[1600][0])]
 	except:
-		results_csv['zones']['5']=[0,0]
+		results_csv['zones']['5']=[0,0,0]
 	try:
-		results_csv['zones']['6']=[len([row for row in results_csv['chart'] if row[-2]==6]),len([row for row in results_csv['chart'] if row[-2]==6 and row[1]==1])/len([row for row in results_csv['chart'] if row[-2]==6])]
+		results_csv['zones']['6']=[len([row for row in results_csv['chart'] if row[-2]==6]),len([row for row in results_csv['chart'] if row[-2]==6 and row[1]==1])/len([row for row in results_csv['chart'] if row[-2]==6]),(len([row for row in results_csv['chart'] if row[-2]==6 and row[1]==1])/len([row for row in results_csv['chart'] if row[-2]==6]))-float(average_csv[1600][0])]
 	except:
-		results_csv['zones']['6']=[0,0]
+		results_csv['zones']['6']=[0,0,0]
 	try:
-		results_csv['zones']['7']=[len([row for row in results_csv['chart'] if row[-2]==7]),len([row for row in results_csv['chart'] if row[-2]==7 and row[1]==1])/len([row for row in results_csv['chart'] if row[-2]==7])]
+		results_csv['zones']['7']=[len([row for row in results_csv['chart'] if row[-2]==7]),len([row for row in results_csv['chart'] if row[-2]==7 and row[1]==1])/len([row for row in results_csv['chart'] if row[-2]==7]),(len([row for row in results_csv['chart'] if row[-2]==7 and row[1]==1])/len([row for row in results_csv['chart'] if row[-2]==7]))-float(average_csv[1600][0])]
 	except:
-		results_csv['zones']['7']=[0,0]
+		results_csv['zones']['7']=[0,0,0]
 	try:
-		results_csv['zones']['8']=[len([row for row in results_csv['chart'] if row[-2]==8]),len([row for row in results_csv['chart'] if row[-2]==8 and row[1]==1])/len([row for row in results_csv['chart'] if row[-2]==8])]
+		results_csv['zones']['8']=[len([row for row in results_csv['chart'] if row[-2]==8]),len([row for row in results_csv['chart'] if row[-2]==8 and row[1]==1])/len([row for row in results_csv['chart'] if row[-2]==8]),(len([row for row in results_csv['chart'] if row[-2]==8 and row[1]==1])/len([row for row in results_csv['chart'] if row[-2]==8]))-float(average_csv[1600][0])]
 	except:
-		results_csv['zones']['8']=[0,0]
+		results_csv['zones']['8']=[0,0,0]
 	try:
-		results_csv['zones']['9']=[len([row for row in results_csv['chart'] if row[-2]==9]),len([row for row in results_csv['chart'] if row[-2]==9 and row[1]==1])/len([row for row in results_csv['chart'] if row[-2]==9])]
+		results_csv['zones']['9']=[len([row for row in results_csv['chart'] if row[-2]==9]),len([row for row in results_csv['chart'] if row[-2]==9 and row[1]==1])/len([row for row in results_csv['chart'] if row[-2]==9]),(len([row for row in results_csv['chart'] if row[-2]==9 and row[1]==1])/len([row for row in results_csv['chart'] if row[-2]==9]))-float(average_csv[1600][0])]
 	except:
-		results_csv['zones']['9']=[0,0]
+		results_csv['zones']['9']=[0,0,0]
 	try:
-		results_csv['zones']['10']=[len([row for row in results_csv['chart'] if row[-2]==10]),len([row for row in results_csv['chart'] if row[-2]==10 and row[1]==1])/len([row for row in results_csv['chart'] if row[-2]==10])]
+		results_csv['zones']['10']=[len([row for row in results_csv['chart'] if row[-2]==10]),len([row for row in results_csv['chart'] if row[-2]==10 and row[1]==1])/len([row for row in results_csv['chart'] if row[-2]==10]),(len([row for row in results_csv['chart'] if row[-2]==10 and row[1]==1])/len([row for row in results_csv['chart'] if row[-2]==10]))-float(average_csv[1600][0])]
 	except:
-		results_csv['zones']['10']=[0,0]
+		results_csv['zones']['10']=[0,0,0]
 	try:
-		results_csv['zones']['11']=[len([row for row in results_csv['chart'] if row[-2]==11]),len([row for row in results_csv['chart'] if row[-2]==11 and row[1]==1])/len([row for row in results_csv['chart'] if row[-2]==11])]
+		results_csv['zones']['11']=[len([row for row in results_csv['chart'] if row[-2]==11]),len([row for row in results_csv['chart'] if row[-2]==11 and row[1]==1])/len([row for row in results_csv['chart'] if row[-2]==11]),(len([row for row in results_csv['chart'] if row[-2]==11 and row[1]==1])/len([row for row in results_csv['chart'] if row[-2]==11]))-float(average_csv[1600][0])]
 	except:
-		results_csv['zones']['11']=[0,0]
+		results_csv['zones']['11']=[0,0,0]
 
 results_csv['details']=details
+if custom=='1':
+	results_csv['details']='Stephen Curry vs. the Oklahoma Thunder, 2/27/2016, pretty much 0 seconds remaining, tie game'
 results_csv['players']=players
 results_csv['rows']=len(rows)
-results_csv['query']="""SELECT three,made,x,y,zone,shotzone FROM %s WHERE shotzone!=0 AND %s""" % (table,string+append)
+results_csv['query']="""SELECT three,made,x,y,zone,shotzone FROM %s WHERE %s""" % (table,string+append)
 # results_csv.append(string)
 
 # rim_rows = rows[rows[:,2]**2+rows[:,3]**2<80**2]
